@@ -1,0 +1,195 @@
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import api, { apiError } from '../../lib/api';
+import type { Requirement } from '../../types';
+
+const STATUS_COLORS: Record<string, string> = {
+  open: 'badge-red',
+  in_progress: 'badge-accent',
+  fulfilled: 'badge-green',
+};
+
+const TYPE_LABELS: Record<string, { label: string; icon: string }> = {
+  chuka: { label: 'Chuka', icon: '🍛' },
+  gochari: { label: 'Gochari', icon: '🥣' },
+  medical: { label: 'Medical', icon: '💊' },
+  stay: { label: 'Stay', icon: '🏠' },
+  travel_support: { label: 'Travel Support', icon: '🚶' },
+  other: { label: 'Other', icon: '📌' },
+};
+
+function formatDate(d?: string) {
+  if (!d) return '';
+  return new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+export default function RequirementsPage() {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const [items, setItems] = useState<Requirement[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [form, setForm] = useState({
+    type: 'chuka', description: '', needed_on: '', city: '',
+    visibility: 'followers_and_temples',
+  });
+
+  useEffect(() => {
+    if (!id) return;
+    api.get(`/maharaj/${id}/requirements`)
+      .then((data: any) => setItems(Array.isArray(data) ? data : []))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  async function addRequirement(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setError('');
+    setNotice('');
+    try {
+      const added = await api.post(`/maharaj/${id}/requirements`, {
+        type: form.type,
+        description: form.description,
+        needed_on: form.needed_on || undefined,
+        city: form.city || undefined,
+        visibility: form.visibility,
+      }) as any;
+      const newItem: Requirement = {
+        id: added.id, type: form.type as Requirement['type'], description: form.description,
+        needed_on: form.needed_on || undefined, city: form.city || undefined,
+        visibility: form.visibility, status: 'open', created_at: new Date().toISOString(),
+      };
+      setItems((prev) => [newItem, ...prev]);
+      if (added.notified > 0) setNotice(`Requirement posted — ${added.notified} follower(s) notified`);
+      setForm({ type: 'chuka', description: '', needed_on: '', city: '', visibility: 'followers_and_temples' });
+    } catch (e) {
+      setError(apiError(e));
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function updateStatus(reqId: string, status: string) {
+    try {
+      await api.patch(`/maharaj/${id}/requirements/${reqId}`, { status });
+      setItems((prev) => prev.map((r) => r.id === reqId ? { ...r, status: status as any } : r));
+    } catch (e) {
+      alert(apiError(e));
+    }
+  }
+
+  async function deleteReq(reqId: string) {
+    if (!confirm('Delete this requirement?')) return;
+    try {
+      await api.delete(`/maharaj/${id}/requirements/${reqId}`);
+      setItems((prev) => prev.filter((r) => r.id !== reqId));
+    } catch (e) {
+      alert(apiError(e));
+    }
+  }
+
+  return (
+    <div className="max-w-2xl">
+      <div className="page-header">
+        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
+        <h1 className="page-title">Requirements</h1>
+        <p className="page-subtitle">Chuka, gochari & other needs — visible to followers and linked temples</p>
+      </div>
+
+      <div className="card mb-6">
+        <h2 className="font-semibold text-navy-800 mb-4">Post Requirement</h2>
+        <form onSubmit={addRequirement} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">Type *</label>
+              <select className="input" value={form.type}
+                onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
+                {Object.entries(TYPE_LABELS).map(([val, t]) => (
+                  <option key={val} value={val}>{t.label}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="label">Needed On</label>
+              <input className="input" type="date" value={form.needed_on}
+                onChange={(e) => setForm((f) => ({ ...f, needed_on: e.target.value }))} />
+            </div>
+          </div>
+          <div>
+            <label className="label">Description *</label>
+            <textarea className="input" rows={2} required
+              placeholder="e.g. Chuka required for 4 sadhus on 14 June, Adajan area"
+              value={form.description}
+              onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="label">City</label>
+              <input className="input" placeholder="Surat" value={form.city}
+                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+            </div>
+            <div>
+              <label className="label">Visibility</label>
+              <select className="input" value={form.visibility}
+                onChange={(e) => setForm((f) => ({ ...f, visibility: e.target.value }))}>
+                <option value="followers_and_temples">Followers & Temples</option>
+                <option value="temples_only">Temples Only</option>
+                <option value="private">Private</option>
+              </select>
+            </div>
+          </div>
+          {error && <p className="text-sm text-danger-500">{error}</p>}
+          {notice && <p className="text-sm text-cta-600">{notice}</p>}
+          <button type="submit" disabled={saving} className="btn-primary">
+            {saving ? 'Posting…' : 'Post Requirement'}
+          </button>
+        </form>
+      </div>
+
+      <div className="card">
+        <h2 className="font-semibold text-navy-800 mb-4">
+          All Requirements
+          <span className="ml-2 text-sm font-normal text-gray-500">({items.length})</span>
+        </h2>
+        {loading && <p className="text-sm text-gray-500">Loading…</p>}
+        {!loading && items.length === 0 && <p className="text-sm text-gray-500">No requirements posted yet</p>}
+        <div className="space-y-3">
+          {items.map((req) => (
+            <div key={req.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+              <span className="text-xl mt-0.5">{TYPE_LABELS[req.type]?.icon ?? '📌'}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <p className="font-medium text-sm text-gray-800">{TYPE_LABELS[req.type]?.label ?? req.type}</p>
+                  <span className={`${STATUS_COLORS[req.status]} text-[10px]`}>{req.status.replace('_', ' ')}</span>
+                </div>
+                <p className="text-xs text-gray-600 mb-1">{req.description}</p>
+                <p className="text-xs text-gray-400">
+                  {req.needed_on && <>Needed on {formatDate(req.needed_on)}</>}
+                  {req.city && <> · {req.city}</>}
+                  {req.fulfilled_by && <> · Fulfilled by {req.fulfilled_by}</>}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  {req.status !== 'fulfilled' && (
+                    <select
+                      value={req.status}
+                      onChange={(e) => updateStatus(req.id, e.target.value)}
+                      className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+                    >
+                      <option value="open">Open</option>
+                      <option value="in_progress">In Progress</option>
+                      <option value="fulfilled">Fulfilled</option>
+                    </select>
+                  )}
+                  <button onClick={() => deleteReq(req.id)} className="text-xs text-gray-400 hover:text-danger-500">Delete</button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}

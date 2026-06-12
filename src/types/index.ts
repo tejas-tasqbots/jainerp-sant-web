@@ -1,0 +1,86 @@
+export interface MaharajRepUser {
+  id: string;
+  mobile: string;
+  name: string | null;
+  maharaj_ids: string[];
+}
+
+export interface AuthState {
+  user: MaharajRepUser | null;
+  access_token: string | null;
+  refresh_token: string | null;
+  maharaj_ids: string[];
+}
+
+export interface MaharajProfile {
+  id: string;
+  name: string;
+  type: 'maharaj' | 'mataji';
+  samuday: string;
+  diksha_year?: number;
+  guru_name?: string;
+  bio?: string;
+  languages?: string[];
+  photo_url?: string;
+  verified: boolean;
+  verified_at?: string;
+  followers_count: number;
+  place?: string;
+  current_city?: string;
+  current_state?: string;
+  created_at: string;
+}
+
+export interface Location {
+  id: string;
+  place: string;
+  city: string;
+  state: string;
+  from_date?: string;
+  to_date?: string;
+  chaturmas?: boolean;
+  notes?: string;
+  lat?: number;
+  lng?: number;
+  is_current: boolean;
+  created_at: string;
+}
+
+export interface ViharEntry {
+  id: string;
+  expected_from: string;
+  expected_to?: string;
+  place: string;
+  city?: string;
+  state: string;
+  notes?: string;
+  created_at: string;
+}
+
+export interface Requirement {
+  id: string;
+  type: 'chuka' | 'gochari' | 'medical' | 'stay' | 'travel_support' | 'other';
+  description: string;
+  needed_on?: string;
+  city?: string;
+  visibility?: string;
+  status: 'open' | 'in_progress' | 'fulfilled';
+  fulfilled_by?: string;
+  created_at: string;
+}
+
+export interface Broadcast {
+  id: string;
+  title: string;
+  message: string;
+  type: string;
+  link?: string;
+  created_at: string;
+}
+
+export interface Follower {
+  devotee_id: string;
+  name?: string;
+  mobile: string;
+  followed_at: string;
+}
