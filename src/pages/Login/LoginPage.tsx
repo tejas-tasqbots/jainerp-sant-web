@@ -72,15 +72,22 @@ export default function LoginPage() {
             <form onSubmit={sendOtp} className="space-y-4">
               <div>
                 <label className="label">Mobile Number</label>
-                <input
-                  className="input"
-                  type="tel"
-                  placeholder="+91 98765 43210"
-                  value={mobile}
-                  onChange={(e) => setMobile(e.target.value)}
-                  required
-                  autoFocus
-                />
+                <div className="flex gap-0">
+                  <span className="flex items-center px-3 bg-gray-50 border border-gray-300 border-r-0 rounded-l-md text-sm text-gray-500">
+                    +91
+                  </span>
+                  <input
+                    className="input rounded-l-none flex-1"
+                    type="tel"
+                    inputMode="numeric"
+                    maxLength={10}
+                    placeholder="9876543210"
+                    value={mobile}
+                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    required
+                    autoFocus
+                  />
+                </div>
                 <p className="text-xs text-gray-500 mt-1">
                   Enter the mobile number registered as a Maharaj/Mataji representative
                 </p>
@@ -105,7 +112,7 @@ export default function LoginPage() {
                   required
                   autoFocus
                 />
-                <p className="text-xs text-gray-500 mt-1">OTP sent to {mobile}</p>
+                <p className="text-xs text-gray-500 mt-1">OTP sent to +91 {mobile}</p>
                 {devOtp && (
                   <p className="text-xs text-accent-600 mt-1 font-mono">Dev OTP: {devOtp}</p>
                 )}
