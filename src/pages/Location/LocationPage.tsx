@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { LocationPicker } from '../../components/LocationPicker';
+import { StateSelect, CitySelect } from '../../components/GeoSelect';
 import type { Location } from '../../types';
 
 function formatDate(d?: string) {
@@ -137,14 +139,12 @@ export default function LocationPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">City *</label>
-              <input className="input" placeholder="Ahmedabad" value={form.city}
-                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} required />
+              <label className="label">State *</label>
+              <StateSelect value={form.state} onChange={(s) => setForm((f) => ({ ...f, state: s, city: '' }))} />
             </div>
             <div>
-              <label className="label">State *</label>
-              <input className="input" placeholder="Gujarat" value={form.state}
-                onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} required />
+              <label className="label">City *</label>
+              <CitySelect state={form.state} value={form.city} onChange={(c) => setForm((f) => ({ ...f, city: c }))} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -169,18 +169,11 @@ export default function LocationPage() {
             <textarea className="input" rows={2} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="label">Latitude</label>
-              <input className="input" type="number" step="any" placeholder="23.0225" value={form.lat}
-                onChange={(e) => setForm((f) => ({ ...f, lat: e.target.value }))} />
-            </div>
-            <div>
-              <label className="label">Longitude</label>
-              <input className="input" type="number" step="any" placeholder="72.5714" value={form.lng}
-                onChange={(e) => setForm((f) => ({ ...f, lng: e.target.value }))} />
-            </div>
-          </div>
+          <LocationPicker
+            lat={form.lat ? Number(form.lat) : null}
+            lng={form.lng ? Number(form.lng) : null}
+            onChange={(la, ln) => setForm((f) => ({ ...f, lat: String(la), lng: String(ln) }))}
+          />
           {error && <p className="text-sm text-danger-500">{error}</p>}
           {notice && <p className="text-sm text-cta-600">{notice}</p>}
           <button type="submit" disabled={saving} className="btn-primary w-full py-2.5">

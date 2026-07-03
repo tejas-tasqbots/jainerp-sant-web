@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { RepsManager } from '../../components/RepsManager';
 import type { MaharajProfile } from '../../types';
 
 export default function ProfileDetailPage() {
@@ -173,6 +174,9 @@ export default function ProfileDetailPage() {
           </form>
         </div>
       )}
+
+      {/* Co-representatives — multiple logins can share this one profile */}
+      {id && <RepsManager maharajId={id} />}
     </div>
   );
 }

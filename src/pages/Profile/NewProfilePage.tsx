@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
@@ -7,6 +7,17 @@ export default function NewProfilePage() {
   const navigate = useNavigate();
   const { setAuth, user, access_token, refresh_token } = useAuthStore();
   const [loading, setLoading] = useState(false);
+
+  // One profile per login — if this account already has one, send them to it.
+  useEffect(() => {
+    api.get('/maharaj/mine')
+      .then((data: any) => {
+        const list = Array.isArray(data) ? data : [];
+        if (list.length >= 1) navigate(`/profiles/${list[0].id}`, { replace: true });
+      })
+      .catch(() => {});
+  }, [navigate]);
+
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '',
