@@ -21,6 +21,8 @@ export default function LocationPage() {
     from_date: '', to_date: '', chaturmas: false, notes: '',
     lat: '', lng: '',
   });
+  const [proposals, setProposals] = useState<any[]>([]);
+  const [acting, setActing] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -28,7 +30,35 @@ export default function LocationPage() {
       .then((data: any) => setHistory(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
+    loadProposals();
   }, [id]);
+
+  function loadProposals() {
+    if (!id) return;
+    api.get(`/maharaj/${id}/location/proposals?status=pending`)
+      .then((data: any) => setProposals(Array.isArray(data) ? data : []))
+      .catch(() => {});
+  }
+
+  async function decideProposal(proposalId: string, action: 'approve' | 'reject') {
+    setActing(proposalId);
+    try {
+      await api.patch(`/maharaj/${id}/location/proposals/${proposalId}/${action}`, {});
+      setProposals((p) => p.filter((x) => x.id !== proposalId));
+      if (action === 'approve') {
+        // Approved proposal becomes the current location — refresh history.
+        const data: any = await api.get(`/maharaj/${id}/location`);
+        setHistory(Array.isArray(data) ? data : []);
+        setNotice('Proposal approved — it is now your current location.');
+      } else {
+        setNotice('Proposal rejected.');
+      }
+    } catch (e) {
+      setError(apiError(e));
+    } finally {
+      setActing('');
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -63,6 +93,39 @@ export default function LocationPage() {
         <h1 className="page-title">Update Location</h1>
         <p className="page-subtitle">Setting a new location notifies all followers</p>
       </div>
+
+      {/* Proposals from mandirs awaiting approval */}
+      {proposals.length > 0 && (
+        <div className="card mb-6 border-2 border-amber-200 bg-amber-50/50">
+          <h2 className="font-semibold text-navy-800 mb-1">Location updates proposed by mandirs</h2>
+          <p className="text-xs text-gray-500 mb-4">A mandir has reported a location for you. Approve to make it your current location, or reject.</p>
+          <div className="space-y-3">
+            {proposals.map((p) => (
+              <div key={p.id} className="bg-white rounded-lg p-3 border border-amber-100">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-sm font-semibold text-gray-800">{p.place}</p>
+                    <p className="text-xs text-gray-500">{[p.city, p.state].filter(Boolean).join(', ')}</p>
+                    {(p.from_date || p.to_date) && (
+                      <p className="text-xs text-gray-400">{formatDate(p.from_date)} {p.to_date && `→ ${formatDate(p.to_date)}`}</p>
+                    )}
+                    <p className="text-xs text-gray-400 mt-0.5">Proposed by {p.tenant_name}{p.proposed_by_name ? ` · ${p.proposed_by_name}` : ''}</p>
+                    {p.notes && <p className="text-xs text-gray-500 mt-1 italic">{p.notes}</p>}
+                  </div>
+                </div>
+                <div className="flex gap-2 mt-3">
+                  <button disabled={acting === p.id} onClick={() => decideProposal(p.id, 'approve')} className="btn-primary text-xs px-3 py-1.5">
+                    {acting === p.id ? '…' : 'Approve'}
+                  </button>
+                  <button disabled={acting === p.id} onClick={() => decideProposal(p.id, 'reject')} className="text-xs px-3 py-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50">
+                    Reject
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="card mb-6">
         <h2 className="font-semibold text-navy-800 mb-4">Set Current Location</h2>
