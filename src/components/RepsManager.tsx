@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import api, { apiError } from '../lib/api';
+import { isValidPhone, PhoneInput } from './PhoneInput';
 
 interface CoRep { id: string; mobile: string; name?: string | null; linked: boolean }
 interface RepsData {
@@ -28,7 +29,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
-    if (mobile.replace(/\D/g, '').length < 10) { setError('Enter a valid 10-digit mobile'); return; }
+    if (!isValidPhone(mobile)) { setError('Enter a valid mobile number'); return; }
     setBusy(true); setError('');
     try {
       await api.post(`/maharaj/${maharajId}/reps`, { mobile, name: name || undefined });
@@ -75,7 +76,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
         {data?.co_reps.map((r) => (
           <div key={r.id} className="flex items-center gap-3 p-3 rounded-lg bg-gray-50 border border-gray-100">
             <div className="w-8 h-8 rounded-full bg-gray-300 text-gray-700 text-xs font-bold flex items-center justify-center">
-              {(r.name || r.mobile).replace('+91', '')[0]?.toUpperCase()}
+              {(r.name || r.mobile.replace('+', ''))[0]?.toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-800 truncate">{r.name || 'Co-representative'}</p>
@@ -96,8 +97,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
         </div>
         <div className="flex-1">
           <label className="label">Mobile number</label>
-          <input className="input" value={mobile} inputMode="numeric" maxLength={10}
-            onChange={(e) => setMobile(e.target.value.replace(/\D/g, ''))} placeholder="9876543210" />
+          <PhoneInput value={mobile} onChange={setMobile} />
         </div>
         <button type="submit" disabled={busy} className="btn-primary whitespace-nowrap">{busy ? 'Adding…' : 'Add Rep'}</button>
       </form>

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { isValidPhone, PhoneInput } from '../../components/PhoneInput';
 import { useAuthStore } from '../../store/authStore';
 
 type Step = 'mobile' | 'otp';
@@ -17,6 +18,7 @@ export default function LoginPage() {
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
+    if (!isValidPhone(mobile)) { setError('Enter a valid mobile number'); return; }
     setError('');
     setLoading(true);
     try {
@@ -72,18 +74,10 @@ export default function LoginPage() {
             <form onSubmit={sendOtp} className="space-y-4">
               <div>
                 <label className="label">Mobile Number</label>
-                <div className="flex gap-0">
-                  <span className="flex items-center px-3 bg-gray-50 border border-gray-300 border-r-0 rounded-l-md text-sm text-gray-500">
-                    +91
-                  </span>
-                  <input
-                    className="input rounded-l-none flex-1"
-                    type="tel"
-                    inputMode="numeric"
-                    maxLength={10}
-                    placeholder="9876543210"
+                <div>
+                  <PhoneInput
                     value={mobile}
-                    onChange={(e) => setMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                    onChange={setMobile}
                     required
                     autoFocus
                   />
@@ -112,7 +106,7 @@ export default function LoginPage() {
                   required
                   autoFocus
                 />
-                <p className="text-xs text-gray-500 mt-1">OTP sent to +91 {mobile}</p>
+                <p className="text-xs text-gray-500 mt-1">OTP sent to {mobile}</p>
                 {devOtp && (
                   <p className="text-xs text-accent-600 mt-1 font-mono">Dev OTP: {devOtp}</p>
                 )}
