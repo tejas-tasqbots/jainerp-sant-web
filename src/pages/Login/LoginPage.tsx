@@ -65,7 +65,7 @@ export default function LoginPage() {
           <div className="w-16 h-16 rounded-2xl bg-accent-500 flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
             🕉️
           </div>
-          <h1 className="text-2xl font-bold text-white">JainERP</h1>
+          <h1 className="text-2xl font-bold text-white">JainERP™</h1>
           <p className="text-white/60 text-sm mt-1">Maharaj / Mataji Representative Portal</p>
         </div>
 

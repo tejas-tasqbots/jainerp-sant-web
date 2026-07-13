@@ -35,7 +35,7 @@ export default function Sidebar() {
           ॐ
         </div>
         <div>
-          <p className="text-white font-bold text-sm leading-none">JainERP</p>
+          <p className="text-white font-bold text-sm leading-none">JainERP™</p>
           <p className="text-white/60 text-xs mt-0.5">Maharaj Portal</p>
         </div>
       </div>
