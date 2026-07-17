@@ -1,3 +1,5 @@
+import { useTranslation } from 'react-i18next'
+import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
@@ -7,6 +9,7 @@ import { useAuthStore } from '../../store/authStore';
 type Step = 'mobile' | 'otp';
 
 export default function LoginPage() {
+  const { t } = useTranslation();
   const [step, setStep] = useState<Step>('mobile');
   const [mobile, setMobile] = useState('');
   const [otp, setOtp] = useState('');
@@ -18,7 +21,7 @@ export default function LoginPage() {
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
-    if (!isValidPhone(mobile)) { setError('Enter a valid mobile number'); return; }
+    if (!isValidPhone(mobile)) { setError(t('login.invalidMobile')); return; }
     setError('');
     setLoading(true);
     try {
@@ -69,11 +72,12 @@ export default function LoginPage() {
           <p className="text-white/60 text-sm mt-1">Maharaj / Mataji Representative Portal</p>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl p-6">
+        <div className="bg-white rounded-2xl shadow-xl p-6 relative">
+          <div className="absolute right-3 top-3"><LanguageSwitcher /></div>
           {step === 'mobile' ? (
             <form onSubmit={sendOtp} className="space-y-4">
               <div>
-                <label className="label">Mobile Number</label>
+                <label className="label">{t('login.mobileLabel')}</label>
                 <div>
                   <PhoneInput
                     value={mobile}
@@ -83,12 +87,12 @@ export default function LoginPage() {
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
-                  Enter the mobile number registered as a Maharaj/Mataji representative
+                  {t('login.repHint')}
                 </p>
               </div>
               {error && <p className="text-sm text-danger-500">{error}</p>}
               <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
-                {loading ? 'Sending OTP…' : 'Send OTP'}
+                {loading ? t('login.sendingOtp') : t('login.sendOtp')}
               </button>
             </form>
           ) : (
@@ -113,7 +117,7 @@ export default function LoginPage() {
               </div>
               {error && <p className="text-sm text-danger-500">{error}</p>}
               <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
-                {loading ? 'Verifying…' : 'Verify & Sign In'}
+                {loading ? t('login.verifying') : t('login.verify')}
               </button>
               <button
                 type="button"

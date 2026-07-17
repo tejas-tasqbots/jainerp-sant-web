@@ -1,25 +1,27 @@
+import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
 import api from '../../lib/api';
 
-const navGroups = [
-  {
-    label: 'My Profiles',
-    links: [
-      { to: '/', label: 'Dashboard', exact: true },
-    ],
-  },
-  {
-    label: 'Account',
-    links: [
-      { to: '/settings', label: 'Settings', exact: false },
-    ],
-  },
-];
-
 export default function Sidebar() {
+  const { t } = useTranslation();
   const { user, logout: storeLogout } = useAuthStore();
   const navigate = useNavigate();
+
+  const navGroups = [
+    {
+      label: t('nav.myProfiles'),
+      links: [
+        { to: '/', label: t('nav.dashboard'), exact: true },
+      ],
+    },
+    {
+      label: t('nav.account'),
+      links: [
+        { to: '/settings', label: t('nav.settings'), exact: false },
+      ],
+    },
+  ];
 
   async function handleLogout() {
     try { await api.post('/auth/logout'); } catch {}
@@ -36,7 +38,7 @@ export default function Sidebar() {
         </div>
         <div>
           <p className="text-white font-bold text-sm leading-none">JainERP™</p>
-          <p className="text-white/60 text-xs mt-0.5">Maharaj Portal</p>
+          <p className="text-white/60 text-xs mt-0.5">{t('nav.portal')}</p>
         </div>
       </div>
 
