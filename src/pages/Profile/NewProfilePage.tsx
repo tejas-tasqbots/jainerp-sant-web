@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { ASCETIC_TYPES, SECTS } from '../../lib/ascetic'
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
@@ -21,7 +22,9 @@ export default function NewProfilePage() {
   const [error, setError] = useState('');
   const [form, setForm] = useState({
     name: '',
-    type: 'maharaj',
+    type: 'muni',
+    sect: '',
+    sub_sect: '',
     samuday: '',
     diksha_year: '',
     guru_name: '',
@@ -85,14 +88,24 @@ export default function NewProfilePage() {
             <label className="label">Type *</label>
             <select className="input" value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-              <option value="maharaj">Maharaj</option>
-              <option value="mataji">Mataji</option>
+              {ASCETIC_TYPES.map((t) => (
+                <option key={t.value} value={t.value}>{t.title} · {t.rank}</option>
+              ))}
             </select>
           </div>
           <div>
-            <label className="label">Samuday / Sect *</label>
-            <input className="input" placeholder="e.g. Tapagachha, Shvetambar" value={form.samuday}
+            <label className="label">Samuday (community) *</label>
+            <input className="input" placeholder="e.g. Oswal, Porwal, Agarwal" value={form.samuday}
               onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} required />
+          </div>
+          <div>
+            {/* Sect is a separate field from samuday: sampradaya vs community. */}
+            <label className="label">Sect (sampradaya)</label>
+            <select className="input" value={form.sect ?? ''}
+              onChange={(e) => setForm((f) => ({ ...f, sect: e.target.value, sub_sect: '' }))}>
+              <option value="">—</option>
+              {SECTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+            </select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>

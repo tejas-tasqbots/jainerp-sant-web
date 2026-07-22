@@ -15,8 +15,16 @@ export interface AuthState {
 export interface MaharajProfile {
   id: string;
   name: string;
-  type: 'maharaj' | 'mataji';
+  /** Canonical rank. The honorific ("Maharaj Ji") is `type_display`. */
+  type: 'muni' | 'aryika' | 'kshullak' | 'kshullika' | 'ailak';
+  /** Rendered honorific from the API — prefer this over mapping locally. */
+  type_display?: string;
+  /** Community (Oswal, Porwal…), NOT the sect. */
   samuday: string;
+  /** Sampradaya, and the panth/gaccha within it. */
+  sect?: 'digambar' | 'shwetambar';
+  sect_display?: string;
+  sub_sect?: string;
   diksha_year?: number;
   guru_name?: string;
   bio?: string;

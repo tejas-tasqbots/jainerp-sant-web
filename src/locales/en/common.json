@@ -1,5 +1,5 @@
 {
-  "nav": { "dashboard": "Dashboard", "myProfiles": "My Profiles", "settings": "Settings", "account": "Account", "portal": "Maharaj Portal" },
+  "nav": { "dashboard": "Dashboard", "myProfiles": "My Profiles", "settings": "Settings", "account": "Account", "portal": "Sadhu-Sadhvi Portal" },
   "login": {
     "mobileLabel": "Mobile Number",
     "sendOtp": "Send OTP",
@@ -7,6 +7,6 @@
     "verify": "Verify & Sign In",
     "verifying": "Verifying…",
     "invalidMobile": "Enter a valid mobile number",
-    "repHint": "Enter the mobile number registered as a Maharaj/Mataji representative"
+    "repHint": "Enter the mobile number registered as a Sadhu-Sadhvi representative"
   }
 }

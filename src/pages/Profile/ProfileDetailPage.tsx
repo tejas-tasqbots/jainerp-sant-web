@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ASCETIC_TYPES, asceticTitle } from '../../lib/ascetic'
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { RepsManager } from '../../components/RepsManager';
@@ -110,7 +111,7 @@ export default function ProfileDetailPage() {
                 <span className="bg-yellow-400/20 text-yellow-200 badge text-xs">Pending Verification</span>
               )}
             </div>
-            <p className="text-white/80 text-sm">{profile.samuday} · {profile.type === 'maharaj' ? 'Maharaj' : 'Mataji'}</p>
+            <p className="text-white/80 text-sm">{profile.samuday} · {profile.type_display ?? asceticTitle(profile.type)}</p>
             {profile.diksha_year && <p className="text-white/60 text-xs mt-0.5">Diksha {profile.diksha_year}</p>}
             <p className="text-white/60 text-xs mt-0.5">{profile.followers_count} followers</p>
           </div>
@@ -143,9 +144,10 @@ export default function ProfileDetailPage() {
               </div>
               <div>
                 <label className="label">Type</label>
-                <select className="input" value={form.type ?? 'maharaj'} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}>
-                  <option value="maharaj">Maharaj</option>
-                  <option value="mataji">Mataji</option>
+                <select className="input" value={form.type ?? 'muni'} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}>
+                  {ASCETIC_TYPES.map((t) => (
+                    <option key={t.value} value={t.value}>{t.title} · {t.rank}</option>
+                  ))}
                 </select>
               </div>
             </div>
