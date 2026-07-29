@@ -30,6 +30,9 @@ export interface MaharajProfile {
   bio?: string;
   languages?: string[];
   photo_url?: string;
+  /** Inline photo (data: URI). Takes precedence over photo_url — see doc-v2/Images_And_Photos.md. */
+  photo_base64?: string;
+  photo_mime?: string;
   verified: boolean;
   verified_at?: string;
   followers_count: number;

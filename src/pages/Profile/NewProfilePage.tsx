@@ -80,13 +80,13 @@ export default function NewProfilePage() {
       <div className="card">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">Full Name *</label>
-            <input className="input" placeholder="Acharya Shri Yashovijayji" value={form.name}
+            <label htmlFor="newpro-full-name" className="label">Full Name *</label>
+            <input id="newpro-full-name" className="input" placeholder="Acharya Shri Yashovijayji" value={form.name}
               onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} required />
           </div>
           <div>
-            <label className="label">Type *</label>
-            <select className="input" value={form.type}
+            <label htmlFor="newpro-type" className="label">Type *</label>
+            <select id="newpro-type" className="input" value={form.type}
               onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
               {ASCETIC_TYPES.map((t) => (
                 <option key={t.value} value={t.value}>{t.title} · {t.rank}</option>
@@ -94,14 +94,14 @@ export default function NewProfilePage() {
             </select>
           </div>
           <div>
-            <label className="label">Samuday (community) *</label>
-            <input className="input" placeholder="e.g. Oswal, Porwal, Agarwal" value={form.samuday}
+            <label htmlFor="newpro-samuday-community" className="label">Samuday (community) *</label>
+            <input id="newpro-samuday-community" className="input" placeholder="e.g. Oswal, Porwal, Agarwal" value={form.samuday}
               onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} required />
           </div>
           <div>
             {/* Sect is a separate field from samuday: sampradaya vs community. */}
-            <label className="label">Sect (sampradaya)</label>
-            <select className="input" value={form.sect ?? ''}
+            <label htmlFor="newpro-sect-sampradaya" className="label">Sect (sampradaya)</label>
+            <select id="newpro-sect-sampradaya" className="input" value={form.sect ?? ''}
               onChange={(e) => setForm((f) => ({ ...f, sect: e.target.value, sub_sect: '' }))}>
               <option value="">—</option>
               {SECTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
@@ -109,25 +109,25 @@ export default function NewProfilePage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Diksha Year</label>
-              <input className="input" type="number" min={1900} max={2025} placeholder="e.g. 1998"
+              <label htmlFor="newpro-diksha-year" className="label">Diksha Year</label>
+              <input id="newpro-diksha-year" className="input" type="number" min={1900} max={2025} placeholder="e.g. 1998"
                 value={form.diksha_year}
                 onChange={(e) => setForm((f) => ({ ...f, diksha_year: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Guru Name</label>
-              <input className="input" placeholder="Guru's name" value={form.guru_name}
+              <label htmlFor="newpro-guru-name" className="label">Guru Name</label>
+              <input id="newpro-guru-name" className="input" placeholder="Guru's name" value={form.guru_name}
                 onChange={(e) => setForm((f) => ({ ...f, guru_name: e.target.value }))} />
             </div>
           </div>
           <div>
-            <label className="label">Bio</label>
-            <textarea className="input" rows={3} placeholder="Brief description…" value={form.bio}
+            <label htmlFor="newpro-bio" className="label">Bio</label>
+            <textarea id="newpro-bio" className="input" rows={3} placeholder="Brief description…" value={form.bio}
               onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} />
           </div>
           <div>
-            <label className="label">Languages (comma-separated)</label>
-            <input className="input" placeholder="gujarati, hindi, sanskrit" value={form.languages}
+            <label htmlFor="newpro-languages-comma-separate" className="label">Languages (comma-separated)</label>
+            <input id="newpro-languages-comma-separate" className="input" placeholder="gujarati, hindi, sanskrit" value={form.languages}
               onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))} />
           </div>
           {error && <p className="text-sm text-danger-500">{error}</p>}

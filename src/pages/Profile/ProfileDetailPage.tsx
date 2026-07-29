@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import { ASCETIC_TYPES, asceticTitle } from '../../lib/ascetic'
-import { Link, useParams, useNavigate } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { compressImage } from '../../lib/imageCompress';
 import { RepsManager } from '../../components/RepsManager';
+import { ClipboardList, MapPin, Megaphone, Route, Users } from 'lucide-react';
+import { ErrorPanel, Loading, PageHeader } from '../../components/kit';
 import type { MaharajProfile } from '../../types';
 
 export default function ProfileDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [profile, setProfile] = useState<MaharajProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -43,15 +45,17 @@ export default function ProfileDetailPage() {
     }
   }
 
+  /**
+   * Compress in the browser, then send a data: URI — the API stores it inline
+   * rather than on disk, so photos survive redeploys and land in DB backups.
+   * 800px/150KB per doc-v2/Images_And_Photos.md §5.2 (avatar + detail portrait).
+   */
   async function uploadPhoto(file: File) {
     setPhotoUploading(true);
     try {
-      const fd = new FormData();
-      fd.append('photo', file);
-      const res = await api.post(`/maharaj/${id}/photo`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      }) as any;
-      setProfile((p) => p ? { ...p, photo_url: res.photo_url } : p);
+      const dataUri = await compressImage(file, { maxDim: 800, maxBytes: 150_000 });
+      const res = await api.post(`/maharaj/${id}/photo`, { photo_base64: dataUri }) as any;
+      setProfile((p) => p ? { ...p, photo_base64: res.photo_base64 } : p);
     } catch (e) {
       alert(apiError(e));
     } finally {
@@ -59,32 +63,45 @@ export default function ProfileDetailPage() {
     }
   }
 
-  if (loading) return (
-    <div className="flex items-center justify-center py-16">
-      <div className="w-8 h-8 border-2 border-navy-300 border-t-navy-700 rounded-full animate-spin" />
-    </div>
-  );
-  if (error) return <div className="card bg-red-50 text-red-600">{error}</div>;
+  async function removePhoto() {
+    if (!confirm('Remove this photo?')) return;
+    setPhotoUploading(true);
+    try {
+      await api.delete(`/maharaj/${id}/photo`);
+      setProfile((p) => p ? { ...p, photo_base64: undefined, photo_url: undefined } : p);
+    } catch (e) {
+      alert(apiError(e));
+    } finally {
+      setPhotoUploading(false);
+    }
+  }
+
+  if (loading) return <Loading label="Loading your profile…" />;
+  if (error) return <ErrorPanel message={error} />;
   if (!profile) return null;
 
   return (
-    <div className="max-w-3xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <div className="flex items-center justify-between">
-          <h1 className="page-title">{profile.name}</h1>
+    <div>
+      {/* The name lives in the hero below, so the page heading names the SCREEN
+          instead of repeating it. */}
+      <PageHeader
+        title="My Profile"
+        subtitle="What devotees see about you in the JainERP app"
+        back={false}
+        actions={
           <button onClick={() => setEditing((v) => !v)} className="btn-outline">
             {editing ? 'Cancel' : 'Edit Profile'}
           </button>
-        </div>
-      </div>
+        }
+      />
 
       {/* Hero banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-6 bg-gradient-to-br from-navy-800 to-navy-600 p-6 text-white">
-        <div className="flex items-start gap-5">
+      <div className="relative rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-navy-800 to-navy-600 p-6 text-white">
+        <div className="flex flex-col sm:flex-row items-start gap-5">
           <div className="relative">
-            {profile.photo_url ? (
-              <img src={profile.photo_url} alt={profile.name}
+            {/* Inline photo wins over an external URL — matches the API read order. */}
+            {(profile.photo_base64 || profile.photo_url) ? (
+              <img src={profile.photo_base64 || profile.photo_url} alt={profile.name}
                 className="w-20 h-20 rounded-full object-cover border-2 border-white/30" />
             ) : (
               <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold text-white">
@@ -99,7 +116,17 @@ export default function ProfileDetailPage() {
             >
               {photoUploading ? '…' : '📷'}
             </button>
-            <input ref={fileRef} type="file" accept="image/*" className="hidden"
+            {(profile.photo_base64 || profile.photo_url) && (
+              <button
+                onClick={removePhoto}
+                disabled={photoUploading}
+                className="absolute -top-1 -right-1 w-6 h-6 bg-white/90 text-red-600 rounded-full flex items-center justify-center text-xs font-bold hover:bg-white"
+                title="Remove photo"
+              >
+                ×
+              </button>
+            )}
+            <input ref={fileRef} type="file" accept="image/*" aria-label="Choose a profile photo" className="hidden"
               onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
           </div>
           <div>
@@ -113,22 +140,38 @@ export default function ProfileDetailPage() {
             </div>
             <p className="text-white/80 text-sm">{profile.samuday} · {profile.type_display ?? asceticTitle(profile.type)}</p>
             {profile.diksha_year && <p className="text-white/60 text-xs mt-0.5">Diksha {profile.diksha_year}</p>}
-            <p className="text-white/60 text-xs mt-0.5">{profile.followers_count} followers</p>
+            <p className="text-white/60 text-xs mt-0.5">
+              {profile.followers_count} {profile.followers_count === 1 ? 'follower' : 'followers'}
+            </p>
           </div>
         </div>
         {profile.bio && <p className="mt-4 text-sm text-white/70">{profile.bio}</p>}
       </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-6">
+      {/* Quick actions — icon + one line of "what this is for", so a rep opening
+          the portal for the first time doesn't have to guess what "Vihar Plan"
+          or "Requirements" will do. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
         {[
-          { label: 'Update Location', to: `/profiles/${id}/location` },
-          { label: 'Vihar Plan', to: `/profiles/${id}/vihar` },
-          { label: 'Requirements', to: `/profiles/${id}/requirements` },
-          { label: 'Broadcast', to: `/profiles/${id}/broadcast` },
-          { label: 'Followers', to: `/profiles/${id}/followers` },
-        ].map((a) => (
-          <Link key={a.to} to={a.to} className="btn-outline text-sm py-2 text-center">{a.label}</Link>
+          { label: 'Update Location', hint: 'Where you are staying now', to: `/profiles/${id}/location`, Icon: MapPin },
+          { label: 'Vihar Plan', hint: 'Places you are travelling to', to: `/profiles/${id}/vihar`, Icon: Route },
+          { label: 'Requirements', hint: 'Aahar, medical and other needs', to: `/profiles/${id}/requirements`, Icon: ClipboardList },
+          { label: 'Broadcast', hint: 'Send a message to followers', to: `/profiles/${id}/broadcast`, Icon: Megaphone },
+          { label: 'Followers', hint: `${profile.followers_count ?? 0} following you`, to: `/profiles/${id}/followers`, Icon: Users },
+        ].map(({ label, hint, to, Icon }) => (
+          <Link
+            key={to}
+            to={to}
+            className="card p-4 flex items-start gap-3 hover:border-navy-300 hover:shadow-sm transition-all group"
+          >
+            <span className="w-9 h-9 rounded-lg bg-navy-50 text-navy-700 flex items-center justify-center flex-shrink-0 group-hover:bg-navy-100 transition-colors">
+              <Icon size={17} />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-semibold text-navy-900">{label}</span>
+              <span className="block text-xs text-slate-500 mt-0.5">{hint}</span>
+            </span>
+          </Link>
         ))}
       </div>
 
@@ -139,12 +182,12 @@ export default function ProfileDetailPage() {
           <form onSubmit={saveEdit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label">Name</label>
-                <input className="input" value={form.name ?? ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+                <label htmlFor="profil-name" className="label">Name</label>
+                <input id="profil-name" className="input" value={form.name ?? ''} onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
               </div>
               <div>
-                <label className="label">Type</label>
-                <select className="input" value={form.type ?? 'muni'} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}>
+                <label htmlFor="profil-type" className="label">Type</label>
+                <select id="profil-type" className="input" value={form.type ?? 'muni'} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}>
                   {ASCETIC_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>{t.title} · {t.rank}</option>
                   ))}
@@ -153,21 +196,21 @@ export default function ProfileDetailPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="label">Samuday</label>
-                <input className="input" value={form.samuday ?? ''} onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} />
+                <label htmlFor="profil-samuday" className="label">Samuday</label>
+                <input id="profil-samuday" className="input" value={form.samuday ?? ''} onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} />
               </div>
               <div>
-                <label className="label">Diksha Year</label>
-                <input className="input" type="number" value={form.diksha_year ?? ''} onChange={(e) => setForm((f) => ({ ...f, diksha_year: parseInt(e.target.value) || undefined }))} />
+                <label htmlFor="profil-diksha-year" className="label">Diksha Year</label>
+                <input id="profil-diksha-year" className="input" type="number" value={form.diksha_year ?? ''} onChange={(e) => setForm((f) => ({ ...f, diksha_year: parseInt(e.target.value) || undefined }))} />
               </div>
             </div>
             <div>
-              <label className="label">Guru Name</label>
-              <input className="input" value={form.guru_name ?? ''} onChange={(e) => setForm((f) => ({ ...f, guru_name: e.target.value }))} />
+              <label htmlFor="profil-guru-name" className="label">Guru Name</label>
+              <input id="profil-guru-name" className="input" value={form.guru_name ?? ''} onChange={(e) => setForm((f) => ({ ...f, guru_name: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Bio</label>
-              <textarea className="input" rows={3} value={form.bio ?? ''} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} />
+              <label htmlFor="profil-bio" className="label">Bio</label>
+              <textarea id="profil-bio" className="input" rows={3} value={form.bio ?? ''} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} />
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : 'Save Changes'}</button>

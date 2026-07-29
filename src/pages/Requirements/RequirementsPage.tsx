@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { PageHeader } from '../../components/kit';
+import { almsLabel } from '../../lib/ascetic';
 import type { Requirement } from '../../types';
 
 const STATUS_COLORS: Record<string, string> = {
@@ -25,7 +27,8 @@ function formatDate(d?: string) {
 
 export default function RequirementsPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  // Alms terminology depends on the profile's sect (Aahar Charya vs Gochari).
+  const [sect, setSect] = useState<string | null>(null);
   const [items, setItems] = useState<Requirement[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -35,6 +38,11 @@ export default function RequirementsPage() {
     type: 'chuka', description: '', needed_on: '', city: '',
     visibility: 'followers_and_temples',
   });
+
+  useEffect(() => {
+    if (!id) return;
+    api.get(`/maharaj/${id}`).then((p: any) => setSect(p?.sect ?? null)).catch(() => {});
+  }, [id]);
 
   useEffect(() => {
     if (!id) return;
@@ -92,48 +100,44 @@ export default function RequirementsPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <h1 className="page-title">Requirements</h1>
-        <p className="page-subtitle">Chuka, gochari & other needs — visible to followers and linked temples</p>
-      </div>
+    <div>
+      <PageHeader title="Requirements" subtitle="Aahar, medical and other needs — visible to followers and linked temples" />
 
       <div className="card mb-6">
         <h2 className="font-semibold text-navy-800 mb-4">Post Requirement</h2>
         <form onSubmit={addRequirement} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Type *</label>
-              <select className="input" value={form.type}
+              <label htmlFor="requir-type" className="label">Type *</label>
+              <select id="requir-type" className="input" value={form.type}
                 onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
                 {Object.entries(TYPE_LABELS).map(([val, t]) => (
-                  <option key={val} value={val}>{t.label}</option>
+                  <option key={val} value={val}>{almsLabel(val, sect) || t.label}</option>
                 ))}
               </select>
             </div>
             <div>
-              <label className="label">Needed On</label>
-              <input className="input" type="date" value={form.needed_on}
+              <label htmlFor="requir-needed-on" className="label">Needed On</label>
+              <input id="requir-needed-on" className="input" type="date" value={form.needed_on}
                 onChange={(e) => setForm((f) => ({ ...f, needed_on: e.target.value }))} />
             </div>
           </div>
           <div>
-            <label className="label">Description *</label>
-            <textarea className="input" rows={2} required
+            <label htmlFor="requir-description" className="label">Description *</label>
+            <textarea id="requir-description" className="input" rows={2} required
               placeholder="e.g. Chuka required for 4 sadhus on 14 June, Adajan area"
               value={form.description}
               onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">City</label>
-              <input className="input" placeholder="Surat" value={form.city}
+              <label htmlFor="requir-city" className="label">City</label>
+              <input id="requir-city" className="input" placeholder="Surat" value={form.city}
                 onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
             </div>
             <div>
-              <label className="label">Visibility</label>
-              <select className="input" value={form.visibility}
+              <label htmlFor="requir-visibility" className="label">Visibility</label>
+              <select id="requir-visibility" className="input" value={form.visibility}
                 onChange={(e) => setForm((f) => ({ ...f, visibility: e.target.value }))}>
                 <option value="followers_and_temples">Followers & Temples</option>
                 <option value="temples_only">Temples Only</option>
@@ -162,7 +166,7 @@ export default function RequirementsPage() {
               <span className="text-xl mt-0.5">{TYPE_LABELS[req.type]?.icon ?? '📌'}</span>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <p className="font-medium text-sm text-gray-800">{TYPE_LABELS[req.type]?.label ?? req.type}</p>
+                  <p className="font-medium text-sm text-gray-800">{almsLabel(req.type, sect) || TYPE_LABELS[req.type]?.label || req.type}</p>
                   <span className={`${STATUS_COLORS[req.status]} text-[10px]`}>{req.status.replace('_', ' ')}</span>
                 </div>
                 <p className="text-xs text-gray-600 mb-1">{req.description}</p>
@@ -176,7 +180,7 @@ export default function RequirementsPage() {
                     <select
                       value={req.status}
                       onChange={(e) => updateStatus(req.id, e.target.value)}
-                      className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+                      aria-label="Change requirement status" title="Change requirement status" className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
                     >
                       <option value="open">Open</option>
                       <option value="in_progress">In Progress</option>

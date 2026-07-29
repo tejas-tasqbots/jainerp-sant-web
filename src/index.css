@@ -45,7 +45,7 @@
   }
 
   .btn-primary {
-    @apply btn bg-navy-800 text-white hover:bg-navy-900 active:scale-[0.98];
+    @apply btn bg-cta text-white hover:bg-cta-600 active:scale-[0.98];
   }
 
   .btn-accent {
@@ -86,12 +86,13 @@
     @apply flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-150;
   }
 
+  /* Light sidebar, same active treatment as mandiradmin: solid brand red. */
   .sidebar-link-active {
-    @apply bg-white/20 text-white;
+    @apply bg-brand-red text-white font-semibold;
   }
 
   .sidebar-link-inactive {
-    @apply text-white/70 hover:bg-white/10 hover:text-white;
+    @apply text-slate-600 hover:bg-slate-100 hover:text-navy-900;
   }
 
   .stat-card {

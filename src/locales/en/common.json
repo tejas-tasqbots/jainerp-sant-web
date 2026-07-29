@@ -1,5 +1,12 @@
 {
-  "nav": { "dashboard": "Dashboard", "myProfiles": "My Profiles", "settings": "Settings", "account": "Account", "portal": "Sadhu-Sadhvi Portal" },
+  "nav": {
+    "dashboard": "Dashboard",
+    "myProfiles": "My Profiles",
+    "settings": "Settings",
+    "account": "Account",
+    "portal": "Sadhu-Sadhvi Portal",
+    "signOut": "Sign out"
+  },
   "login": {
     "mobileLabel": "Mobile Number",
     "sendOtp": "Send OTP",

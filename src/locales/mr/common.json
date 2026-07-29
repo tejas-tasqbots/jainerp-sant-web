@@ -1,5 +1,12 @@
 {
-  "nav": { "dashboard": "डॅशबोर्ड", "myProfiles": "माझी प्रोफाइल्स", "settings": "सेटिंग्ज", "account": "खाते", "portal": "महाराज पोर्टल" },
+  "nav": {
+    "dashboard": "डॅशबोर्ड",
+    "myProfiles": "माझी प्रोफाइल्स",
+    "settings": "सेटिंग्ज",
+    "account": "खाते",
+    "portal": "महाराज पोर्टल",
+    "signOut": "साइन आउट"
+  },
   "login": {
     "mobileLabel": "मोबाइल क्रमांक",
     "sendOtp": "OTP पाठवा",

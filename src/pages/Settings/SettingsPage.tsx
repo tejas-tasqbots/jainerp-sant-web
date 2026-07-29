@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { PageHeader } from '../../components/kit';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SettingsPage() {
@@ -37,9 +38,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-lg">
-      <div className="page-header">
-        <h1 className="page-title">Settings</h1>
-      </div>
+      <PageHeader title="Settings" subtitle="Your account and language" back={false} />
 
       <div className="card mb-4">
         <h2 className="font-semibold text-navy-800 mb-4">Profile Information</h2>
@@ -49,8 +48,8 @@ export default function SettingsPage() {
         </div>
         <form onSubmit={handleNameUpdate} className="space-y-4">
           <div>
-            <label className="label">Display Name</label>
-            <input className="input" value={name} onChange={(e) => setName(e.target.value)}
+            <label htmlFor="settin-display-name" className="label">Display Name</label>
+            <input id="settin-display-name" className="input" value={name} onChange={(e) => setName(e.target.value)}
               placeholder="Enter your name" />
           </div>
           {error && <p className="text-sm text-danger-500">{error}</p>}

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { PageHeader } from '../../components/kit';
 import type { Broadcast } from '../../types';
 
 function timeAgo(d: string) {
@@ -13,7 +14,6 @@ function timeAgo(d: string) {
 
 export default function BroadcastPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
@@ -55,30 +55,26 @@ export default function BroadcastPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <h1 className="page-title">Broadcast</h1>
-        <p className="page-subtitle">Send a message to all followers (max 5 per day)</p>
-      </div>
+    <div>
+      <PageHeader title="Broadcast" subtitle="Send a message to all followers (max 5 per day)" />
 
       <div className="card mb-6">
         <h2 className="font-semibold text-navy-800 mb-4">New Broadcast</h2>
         <form onSubmit={handleSend} className="space-y-4">
           <div>
-            <label className="label">Title *</label>
-            <input className="input" placeholder="Pravachan at Shantinath Mandir" value={form.title}
+            <label htmlFor="broadc-title" className="label">Title *</label>
+            <input id="broadc-title" className="input" placeholder="Pravachan at Shantinath Mandir" value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
           </div>
           <div>
-            <label className="label">Message *</label>
-            <textarea className="input" rows={4} placeholder="Join us for evening pravachan at 6PM. All are welcome." value={form.message}
+            <label htmlFor="broadc-message" className="label">Message *</label>
+            <textarea id="broadc-message" className="input" rows={4} placeholder="Join us for evening pravachan at 6PM. All are welcome." value={form.message}
               onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Type</label>
-              <select className="input" value={form.type}
+              <label htmlFor="broadc-type" className="label">Type</label>
+              <select id="broadc-type" className="input" value={form.type}
                 onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
                 <option value="announcement">Announcement</option>
                 <option value="event">Event</option>
@@ -87,8 +83,8 @@ export default function BroadcastPage() {
               </select>
             </div>
             <div>
-              <label className="label">Link (optional)</label>
-              <input className="input" placeholder="https://…" value={form.link}
+              <label htmlFor="broadc-link-optional" className="label">Link (optional)</label>
+              <input id="broadc-link-optional" className="input" placeholder="https://…" value={form.link}
                 onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))} />
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { PageHeader } from '../../components/kit';
 import { LocationPicker } from '../../components/LocationPicker';
 import { StateSelect, CitySelect } from '../../components/GeoSelect';
 import type { Location } from '../../types';
@@ -12,7 +13,6 @@ function formatDate(d?: string) {
 
 export default function LocationPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [history, setHistory] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -89,12 +89,8 @@ export default function LocationPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <h1 className="page-title">Update Location</h1>
-        <p className="page-subtitle">Setting a new location notifies all followers</p>
-      </div>
+    <div>
+      <PageHeader title="Update Location" subtitle="Setting a new location notifies all followers" />
 
       {/* Proposals from mandirs awaiting approval */}
       {proposals.length > 0 && (
@@ -133,8 +129,8 @@ export default function LocationPage() {
         <h2 className="font-semibold text-navy-800 mb-4">Set Current Location</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">Place / Temple Name *</label>
-            <input className="input" placeholder="Shantinath Jain Mandir" value={form.place}
+            <label htmlFor="locati-place-temple-name" className="label">Place / Temple Name *</label>
+            <input id="locati-place-temple-name" className="input" placeholder="Shantinath Jain Mandir" value={form.place}
               onChange={(e) => setForm((f) => ({ ...f, place: e.target.value }))} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -149,13 +145,13 @@ export default function LocationPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">From Date</label>
-              <input className="input" type="date" value={form.from_date}
+              <label htmlFor="locati-from-date" className="label">From Date</label>
+              <input id="locati-from-date" className="input" type="date" value={form.from_date}
                 onChange={(e) => setForm((f) => ({ ...f, from_date: e.target.value }))} />
             </div>
             <div>
-              <label className="label">To Date</label>
-              <input className="input" type="date" value={form.to_date}
+              <label htmlFor="locati-to-date" className="label">To Date</label>
+              <input id="locati-to-date" className="input" type="date" value={form.to_date}
                 onChange={(e) => setForm((f) => ({ ...f, to_date: e.target.value }))} />
             </div>
           </div>
@@ -165,8 +161,8 @@ export default function LocationPage() {
             <label htmlFor="chaturmas" className="text-sm text-gray-700">Chaturmas Stay</label>
           </div>
           <div>
-            <label className="label">Notes</label>
-            <textarea className="input" rows={2} value={form.notes}
+            <label htmlFor="locati-notes" className="label">Notes</label>
+            <textarea id="locati-notes" className="input" rows={2} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
           <LocationPicker

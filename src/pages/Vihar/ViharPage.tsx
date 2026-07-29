@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
+import { PageHeader } from '../../components/kit';
 import type { ViharEntry } from '../../types';
 
 function formatDate(d?: string) {
@@ -10,7 +11,6 @@ function formatDate(d?: string) {
 
 export default function ViharPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [entries, setEntries] = useState<ViharEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -60,48 +60,44 @@ export default function ViharPage() {
   }
 
   return (
-    <div className="max-w-2xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <h1 className="page-title">Vihar Plan</h1>
-        <p className="page-subtitle">Journey / travel schedule visible to devotees</p>
-      </div>
+    <div>
+      <PageHeader title="Vihar Plan" subtitle="Journey / travel schedule visible to devotees" />
 
       <div className="card mb-6">
         <h2 className="font-semibold text-navy-800 mb-4">Add Stop</h2>
         <form onSubmit={addEntry} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">Expected From *</label>
-              <input className="input" type="date" value={form.expected_from}
+              <label htmlFor="viharp-expected-from" className="label">Expected From *</label>
+              <input id="viharp-expected-from" className="input" type="date" value={form.expected_from}
                 onChange={(e) => setForm((f) => ({ ...f, expected_from: e.target.value }))} required />
             </div>
             <div>
-              <label className="label">Expected To</label>
-              <input className="input" type="date" value={form.expected_to}
+              <label htmlFor="viharp-expected-to" className="label">Expected To</label>
+              <input id="viharp-expected-to" className="input" type="date" value={form.expected_to}
                 onChange={(e) => setForm((f) => ({ ...f, expected_to: e.target.value }))} />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label className="label">Place *</label>
-              <input className="input" placeholder="Palitana" value={form.place}
+              <label htmlFor="viharp-place" className="label">Place *</label>
+              <input id="viharp-place" className="input" placeholder="Palitana" value={form.place}
                 onChange={(e) => setForm((f) => ({ ...f, place: e.target.value }))} required />
             </div>
             <div>
-              <label className="label">City</label>
-              <input className="input" placeholder="Palitana" value={form.city}
+              <label htmlFor="viharp-city" className="label">City</label>
+              <input id="viharp-city" className="input" placeholder="Palitana" value={form.city}
                 onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
             </div>
             <div>
-              <label className="label">State *</label>
-              <input className="input" placeholder="Gujarat" value={form.state}
+              <label htmlFor="viharp-state" className="label">State *</label>
+              <input id="viharp-state" className="input" placeholder="Gujarat" value={form.state}
                 onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} required />
             </div>
           </div>
           <div>
-            <label className="label">Notes</label>
-            <textarea className="input" rows={2} value={form.notes}
+            <label htmlFor="viharp-notes" className="label">Notes</label>
+            <textarea id="viharp-notes" className="input" rows={2} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
           {error && <p className="text-sm text-danger-500">{error}</p>}

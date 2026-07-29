@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import api, { apiError } from '../../lib/api';
+import { useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { Search, Users } from 'lucide-react';
+import api from '../../lib/api';
+import { EmptyState, PageHeader, SkeletonList } from '../../components/kit';
 import type { Follower } from '../../types';
 
 function formatDate(d: string) {
@@ -9,10 +11,10 @@ function formatDate(d: string) {
 
 export default function FollowersPage() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [count, setCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [q, setQ] = useState('');
 
   useEffect(() => {
     if (!id) return;
@@ -28,40 +30,70 @@ export default function FollowersPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  return (
-    <div className="max-w-2xl">
-      <div className="page-header">
-        <button onClick={() => navigate(-1)} className="text-sm text-gray-500 hover:text-gray-700 mb-2">← Back</button>
-        <h1 className="page-title">Followers</h1>
-        {count !== null && (
-          <p className="page-subtitle">{count} devotees following this profile</p>
-        )}
-      </div>
+  // A rep with a few hundred followers needs to find one; scrolling isn't a plan.
+  const shown = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (!term) return followers;
+    return followers.filter(
+      f => (f.name ?? '').toLowerCase().includes(term) || (f.mobile ?? '').includes(term),
+    );
+  }, [followers, q]);
 
-      <div className="card">
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="w-6 h-6 border-2 border-navy-300 border-t-navy-700 rounded-full animate-spin" />
-          </div>
-        )}
-        {!loading && followers.length === 0 && (
-          <p className="text-sm text-gray-500 text-center py-8">No followers yet</p>
-        )}
-        <div className="space-y-2">
-          {followers.map((f) => (
-            <div key={f.devotee_id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <div className="w-9 h-9 rounded-full bg-navy-100 text-navy-700 font-bold text-sm flex items-center justify-center flex-shrink-0">
-                {f.name?.[0]?.toUpperCase() ?? f.mobile[0]}
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium text-gray-800 truncate">{f.name ?? 'Devotee'}</p>
-                <p className="text-xs text-gray-400">{f.mobile}</p>
-              </div>
-              <span className="text-xs text-gray-400 flex-shrink-0">{formatDate(f.followed_at)}</span>
+  return (
+    <div>
+      <PageHeader
+        title="Followers"
+        subtitle={
+          count === null
+            ? undefined
+            // Pluralise properly — this read "1 devotees" before.
+            : `${count} ${count === 1 ? 'devotee follows' : 'devotees follow'} this profile`
+        }
+      />
+
+      {loading ? (
+        <SkeletonList rows={4} />
+      ) : followers.length === 0 ? (
+        <EmptyState
+          icon={Users}
+          title="No followers yet"
+          hint="Devotees who follow this profile in the JainERP devotee app will appear here, with the date they started following."
+        />
+      ) : (
+        <>
+          {followers.length > 8 && (
+            <div className="relative mb-3">
+              <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                className="form-input pl-9"
+                placeholder="Search followers by name or mobile"
+                value={q}
+                onChange={e => setQ(e.target.value)}
+                aria-label="Search followers"
+              />
             </div>
-          ))}
-        </div>
-      </div>
+          )}
+
+          {shown.length === 0 ? (
+            <EmptyState icon={Search} title="No matches" hint={`Nothing matched “${q}”.`} />
+          ) : (
+            <ul className="card divide-y divide-slate-100 p-0 overflow-hidden">
+              {shown.map(f => (
+                <li key={f.devotee_id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-navy-100 text-navy-800 font-bold text-sm flex items-center justify-center flex-shrink-0">
+                    {f.name?.[0]?.toUpperCase() ?? f.mobile?.[0] ?? '?'}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-navy-900 truncate">{f.name ?? 'Devotee'}</p>
+                    <p className="text-xs text-slate-400">{f.mobile}</p>
+                  </div>
+                  <span className="text-xs text-slate-400 flex-shrink-0">{formatDate(f.followed_at)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </>
+      )}
     </div>
   );
 }

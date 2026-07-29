@@ -35,3 +35,19 @@ export function sectLabel(sect?: string | null): string {
 export function subSectsFor(sect?: string | null): readonly string[] {
   return SECTS.find((s) => s.value === sect)?.subSects ?? [];
 }
+
+/**
+ * Alms-round terminology differs by sect and both words are in the DB enum:
+ * Digambara say **Aahar / Aahar Charya**, Shwetambar say **Gochari**. Showing
+ * a Digambar profile "Gochari" (or vice versa) is simply the wrong word — see
+ * doc-v2/Glossary_And_Naming.md §3.2.
+ *
+ * `chuka` is the stored value for the cooked-meal request; it is labelled by
+ * the same rule so the two never appear as unrelated options.
+ */
+export function almsLabel(type: string, sect?: string | null): string {
+  const digambar = (sect ?? '').toLowerCase() === 'digambar';
+  if (type === 'gochari') return digambar ? 'Aahar Charya' : 'Gochari';
+  if (type === 'chuka') return digambar ? 'Aahar (Chuka)' : 'Chuka';
+  return '';
+}
