@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next'
+import { Users } from 'lucide-react'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -61,19 +62,20 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-navy-800 flex items-center justify-center p-4">
+    <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
       <div className="w-full max-w-sm">
-        {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-accent-500 flex items-center justify-center mx-auto mb-4 text-3xl shadow-lg">
-            🕉️
+        <div className="bg-white rounded-2xl shadow-2xl p-8 relative">
+          <div className="absolute right-4 top-4"><LanguageSwitcher /></div>
+          {/* Header — identical treatment to the Mandir Admin login. */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 rounded-2xl bg-brand-red flex items-center justify-center mx-auto mb-4">
+              <Users size={32} className="text-white" />
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">
+              <span className="text-navy-900">Jain</span><span className="text-brand-red">ERP</span>
+            </h1>
+            <p className="text-slate-500 text-sm mt-1">Sadhu-Sadhvi Portal</p>
           </div>
-          <h1 className="text-2xl font-bold text-white">JainERP™</h1>
-          <p className="text-white/60 text-sm mt-1">Maharaj / Mataji Representative Portal</p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-xl p-6 relative">
-          <div className="absolute right-3 top-3"><LanguageSwitcher /></div>
           {step === 'mobile' ? (
             <form onSubmit={sendOtp} className="space-y-4">
               <div>

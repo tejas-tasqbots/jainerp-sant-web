@@ -63,7 +63,7 @@ export default function SettingsPage() {
       <div className="card mb-4">
         <h2 className="font-semibold text-navy-800 mb-2">Account</h2>
         <p className="text-sm text-gray-500 mb-4">
-          You are logged in as a Maharaj/Mataji representative managing{' '}
+          You are logged in as a Sadhu-Sadhvi representative managing{' '}
           <strong>{maharaj_ids.length}</strong> profile(s).
         </p>
       </div>

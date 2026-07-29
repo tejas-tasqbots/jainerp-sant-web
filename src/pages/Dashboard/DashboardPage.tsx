@@ -40,7 +40,7 @@ export default function DashboardPage() {
     <div>
       <div className="page-header">
         <h1 className="page-title">Welcome{user?.name ? `, ${user.name}` : ''} 🙏</h1>
-        <p className="page-subtitle">Set up your Maharaj / Mataji profile to get started</p>
+        <p className="page-subtitle">Set up your Sadhu-Sadhvi profile to get started</p>
       </div>
       {profiles.length === 0 && (
         <div className="card text-center py-16 max-w-lg mx-auto">
