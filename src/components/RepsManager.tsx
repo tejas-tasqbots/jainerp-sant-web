@@ -63,7 +63,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
       <div className="space-y-2 mb-4">
         {data?.primary && (
           <div className="flex items-center gap-3 p-3 rounded-lg bg-navy-50 border border-navy-100">
-            <div className="w-8 h-8 rounded-full bg-navy-600 text-white text-xs font-bold flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-navy-900 text-white text-xs font-bold flex items-center justify-center">
               {(data.primary.name || 'P')[0].toUpperCase()}
             </div>
             <div className="flex-1 min-w-0">

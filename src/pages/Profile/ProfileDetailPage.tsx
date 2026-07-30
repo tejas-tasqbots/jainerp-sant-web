@@ -96,7 +96,7 @@ export default function ProfileDetailPage() {
       />
 
       {/* Hero banner */}
-      <div className="relative rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-navy-800 to-navy-600 p-6 text-white">
+      <div className="relative rounded-2xl overflow-hidden mb-4 bg-gradient-to-br from-navy-900 to-navy-700 p-6 text-white">
         <div className="flex flex-col sm:flex-row items-start gap-5">
           <div className="relative">
             {/* Inline photo wins over an external URL — matches the API read order. */}
@@ -111,7 +111,7 @@ export default function ProfileDetailPage() {
             <button
               onClick={() => fileRef.current?.click()}
               disabled={photoUploading}
-              className="absolute -bottom-1 -right-1 w-7 h-7 bg-accent-500 rounded-full flex items-center justify-center text-navy-900 text-xs font-bold hover:bg-accent-600"
+              className="absolute -bottom-1 -right-1 w-7 h-7 bg-cta rounded-full flex items-center justify-center text-white text-xs font-bold hover:bg-cta-hover"
               title="Change photo"
             >
               {photoUploading ? '…' : '📷'}

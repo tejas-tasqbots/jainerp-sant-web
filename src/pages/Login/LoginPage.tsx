@@ -114,7 +114,7 @@ export default function LoginPage() {
                 />
                 <p className="text-xs text-gray-500 mt-1">OTP sent to {mobile}</p>
                 {devOtp && (
-                  <p className="text-xs text-accent-600 mt-1 font-mono">Dev OTP: {devOtp}</p>
+                  <p className="text-xs text-cta mt-1 font-mono">Dev OTP: {devOtp}</p>
                 )}
               </div>
               {error && <p className="text-sm text-danger-500">{error}</p>}

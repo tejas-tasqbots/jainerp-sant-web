@@ -186,7 +186,7 @@ export default function LocationPage() {
         <div className="space-y-3">
           {history.map((loc) => (
             <div key={loc.id} className={`flex items-start gap-3 p-3 rounded-lg ${loc.is_current ? 'bg-navy-50 border border-navy-200' : 'bg-gray-50'}`}>
-              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${loc.is_current ? 'bg-navy-600' : 'bg-gray-400'}`} />
+              <div className={`w-2 h-2 rounded-full mt-1.5 flex-shrink-0 ${loc.is_current ? 'bg-cta' : 'bg-gray-400'}`} />
               <div>
                 <p className="text-sm font-medium text-gray-800">{loc.place}</p>
                 <p className="text-xs text-gray-500">{loc.city}, {loc.state}</p>
