@@ -27,13 +27,33 @@ export const SECTS = [
   { value: 'shwetambar', label: 'Shwetambar', subSects: ['Murtipujak', 'Sthanakvasi', 'Terapanth'] },
 ] as const;
 
+/**
+ * Canonical sect key for a stored value.
+ *
+ * `public.maharaj_profiles.samuday` is free text and really does hold both
+ * `digamber` (e) and `Shwetambar` (capitalised), so exact `===` matching fell
+ * through and rendered the raw column value. Normalise on a prefix so both
+ * transliterations of each sampradaya resolve to one key.
+ */
+export function sectKey(sect?: string | null): 'digambar' | 'shwetambar' | null {
+  const s = (sect ?? '').toLowerCase().trim();
+  if (!s) return null;
+  if (s.startsWith('digamb')) return 'digambar';
+  if (s.startsWith('shwetamb') || s.startsWith('shvetamb') || s.startsWith('svetamb')) {
+    return 'shwetambar';
+  }
+  return null;
+}
+
+export const isDigambar = (sect?: string | null): boolean => sectKey(sect) === 'digambar';
+
 export function sectLabel(sect?: string | null): string {
   if (!sect) return '';
-  return SECTS.find((s) => s.value === sect)?.label ?? sect;
+  return SECTS.find((s) => s.value === sectKey(sect))?.label ?? sect;
 }
 
 export function subSectsFor(sect?: string | null): readonly string[] {
-  return SECTS.find((s) => s.value === sect)?.subSects ?? [];
+  return SECTS.find((s) => s.value === sectKey(sect))?.subSects ?? [];
 }
 
 /**
@@ -46,7 +66,7 @@ export function subSectsFor(sect?: string | null): readonly string[] {
  * the same rule so the two never appear as unrelated options.
  */
 export function almsLabel(type: string, sect?: string | null): string {
-  const digambar = (sect ?? '').toLowerCase() === 'digambar';
+  const digambar = isDigambar(sect);
   if (type === 'gochari') return digambar ? 'Aahar Charya' : 'Gochari';
   if (type === 'chuka') return digambar ? 'Aahar (Chuka)' : 'Chuka';
   return '';
