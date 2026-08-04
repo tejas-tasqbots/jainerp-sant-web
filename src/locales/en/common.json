@@ -15,5 +15,8 @@
     "verifying": "Verifying…",
     "invalidMobile": "Enter a valid mobile number",
     "repHint": "Enter the mobile number registered as a Sadhu-Sadhvi representative"
+  },
+  "common": {
+    "language": "Language"
   }
 }
