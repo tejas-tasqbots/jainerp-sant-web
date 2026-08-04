@@ -41,12 +41,12 @@ export default function RequirementsPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}`).then((p: any) => setSect(p?.sect ?? null)).catch(() => {});
+    api.get(`/sant/${id}`).then((p: any) => setSect(p?.sect ?? null)).catch(() => {});
   }, [id]);
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}/requirements`)
+    api.get(`/sant/${id}/requirements`)
       .then((data: any) => setItems(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -58,7 +58,7 @@ export default function RequirementsPage() {
     setError('');
     setNotice('');
     try {
-      const added = await api.post(`/maharaj/${id}/requirements`, {
+      const added = await api.post(`/sant/${id}/requirements`, {
         type: form.type,
         description: form.description,
         needed_on: form.needed_on || undefined,
@@ -82,7 +82,7 @@ export default function RequirementsPage() {
 
   async function updateStatus(reqId: string, status: string) {
     try {
-      await api.patch(`/maharaj/${id}/requirements/${reqId}`, { status });
+      await api.patch(`/sant/${id}/requirements/${reqId}`, { status });
       setItems((prev) => prev.map((r) => r.id === reqId ? { ...r, status: status as any } : r));
     } catch (e) {
       alert(apiError(e));
@@ -92,7 +92,7 @@ export default function RequirementsPage() {
   async function deleteReq(reqId: string) {
     if (!confirm('Delete this requirement?')) return;
     try {
-      await api.delete(`/maharaj/${id}/requirements/${reqId}`);
+      await api.delete(`/sant/${id}/requirements/${reqId}`);
       setItems((prev) => prev.filter((r) => r.id !== reqId));
     } catch (e) {
       alert(apiError(e));

@@ -5,7 +5,7 @@ import { PageHeader } from '../../components/kit';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SettingsPage() {
-  const { user, logout: storeLogout, setAuth, access_token, refresh_token, maharaj_ids } = useAuthStore();
+  const { user, logout: storeLogout, setAuth, access_token, refresh_token, sant_ids } = useAuthStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? '');
   const [saving, setSaving] = useState(false);
@@ -20,7 +20,7 @@ export default function SettingsPage() {
     try {
       await api.patch('/auth/profile', { name });
       if (user && access_token && refresh_token) {
-        setAuth({ user: { ...user, name }, access_token, refresh_token, maharaj_ids });
+        setAuth({ user: { ...user, name }, access_token, refresh_token, sant_ids });
       }
       setSuccess('Name updated successfully');
     } catch (e) {
@@ -64,7 +64,7 @@ export default function SettingsPage() {
         <h2 className="font-semibold text-navy-800 mb-2">Account</h2>
         <p className="text-sm text-gray-500 mb-4">
           You are logged in as a Sadhu-Sadhvi representative managing{' '}
-          <strong>{maharaj_ids.length}</strong> profile(s).
+          <strong>{sant_ids.length}</strong> profile(s).
         </p>
       </div>
 

@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { ASCETIC_TYPES, asceticTitle } from '../../lib/ascetic'
+import { ASCETIC_TYPES, asceticTitle, SECTS, subSectsFor } from '../../lib/ascetic'
 import { Link, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { compressImage } from '../../lib/imageCompress';
 import { RepsManager } from '../../components/RepsManager';
+import { PublicProfileEditor } from '../../components/PublicProfileEditor';
 import { ClipboardList, MapPin, Megaphone, Route, Users } from 'lucide-react';
 import { ErrorPanel, Loading, PageHeader } from '../../components/kit';
 import type { MaharajProfile } from '../../types';
@@ -21,11 +22,14 @@ export default function ProfileDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}`)
+    api.get(`/sant/${id}`)
       .then((data: any) => {
         setProfile(data);
         setForm({ name: data.name, type: data.type, samuday: data.samuday,
-          diksha_year: data.diksha_year, guru_name: data.guru_name, bio: data.bio });
+          sect: data.sect, sub_sect: data.sub_sect,
+          diksha_year: data.diksha_year, guru_name: data.guru_name, bio: data.bio,
+          about: data.about, diksha_place: data.diksha_place, education: data.education,
+          honours: data.honours, lineage: data.lineage });
       })
       .catch((e) => setError(apiError(e)))
       .finally(() => setLoading(false));
@@ -35,7 +39,14 @@ export default function ProfileDetailPage() {
     e.preventDefault();
     setSaving(true);
     try {
-      await api.patch(`/maharaj/${id}`, form);
+      // The whole form is sent, so an unset sect must be omitted rather than
+      // sent as '' — the DTO validates against the two sects and would 400,
+      // taking every other edit on the form down with it.
+      const { sect, sub_sect, ...rest } = form;
+      await api.patch(`/sant/${id}`, {
+        ...rest,
+        ...(sect ? { sect, sub_sect: sub_sect || undefined } : {}),
+      });
       setProfile((p) => p ? { ...p, ...form } as MaharajProfile : p);
       setEditing(false);
     } catch (e) {
@@ -54,7 +65,7 @@ export default function ProfileDetailPage() {
     setPhotoUploading(true);
     try {
       const dataUri = await compressImage(file, { maxDim: 800, maxBytes: 150_000 });
-      const res = await api.post(`/maharaj/${id}/photo`, { photo_base64: dataUri }) as any;
+      const res = await api.post(`/sant/${id}/photo`, { photo_base64: dataUri }) as any;
       setProfile((p) => p ? { ...p, photo_base64: res.photo_base64 } : p);
     } catch (e) {
       alert(apiError(e));
@@ -67,7 +78,7 @@ export default function ProfileDetailPage() {
     if (!confirm('Remove this photo?')) return;
     setPhotoUploading(true);
     try {
-      await api.delete(`/maharaj/${id}/photo`);
+      await api.delete(`/sant/${id}/photo`);
       setProfile((p) => p ? { ...p, photo_base64: undefined, photo_url: undefined } : p);
     } catch (e) {
       alert(apiError(e));
@@ -204,6 +215,33 @@ export default function ProfileDetailPage() {
                 <input id="profil-diksha-year" className="input" type="number" value={form.diksha_year ?? ''} onChange={(e) => setForm((f) => ({ ...f, diksha_year: parseInt(e.target.value) || undefined }))} />
               </div>
             </div>
+            {/* Sampradaya is editable here, not only at registration: a rep who
+                skipped it (or picked wrong) had no way to correct it, and it is
+                what the sant directory will filter on. */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profil-sect" className="label">Sect (sampradaya)</label>
+                <select id="profil-sect" className="input" value={form.sect ?? ''}
+                  onChange={(e) => setForm((f) => ({
+                    ...f,
+                    sect: (e.target.value || undefined) as MaharajProfile['sect'],
+                    sub_sect: undefined,
+                  }))}>
+                  <option value="">—</option>
+                  {SECTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
+                </select>
+              </div>
+              {form.sect && (
+                <div>
+                  <label htmlFor="profil-sub-sect" className="label">Panth / Gaccha</label>
+                  <select id="profil-sub-sect" className="input" value={form.sub_sect ?? ''}
+                    onChange={(e) => setForm((f) => ({ ...f, sub_sect: e.target.value || undefined }))}>
+                    <option value="">—</option>
+                    {subSectsFor(form.sect).map((s) => <option key={s} value={s}>{s}</option>)}
+                  </select>
+                </div>
+              )}
+            </div>
             <div>
               <label htmlFor="profil-guru-name" className="label">Guru Name</label>
               <input id="profil-guru-name" className="input" value={form.guru_name ?? ''} onChange={(e) => setForm((f) => ({ ...f, guru_name: e.target.value }))} />
@@ -211,6 +249,42 @@ export default function ProfileDetailPage() {
             <div>
               <label htmlFor="profil-bio" className="label">Bio</label>
               <textarea id="profil-bio" className="input" rows={3} value={form.bio ?? ''} onChange={(e) => setForm((f) => ({ ...f, bio: e.target.value }))} />
+            </div>
+            {/* Long-form public profile (migration 034). `bio` above is the one
+                line that appears under the name; these are what a devotee reads
+                on the profile page itself. None are identity fields, so unlike
+                name/type they stay editable after verification. */}
+            <div>
+              <label htmlFor="profil-about" className="label">About</label>
+              <textarea id="profil-about" className="input" rows={5} value={form.about ?? ''}
+                placeholder="Their life, their work, what they are known for…"
+                onChange={(e) => setForm((f) => ({ ...f, about: e.target.value }))} />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profil-diksha-place" className="label">Diksha place</label>
+                <input id="profil-diksha-place" className="input" value={form.diksha_place ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, diksha_place: e.target.value }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-lineage" className="label">Lineage / parampara</label>
+                <input id="profil-lineage" className="input" value={form.lineage ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, lineage: e.target.value }))} />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="profil-education" className="label">Study & scholarship</label>
+              <textarea id="profil-education" className="input" rows={2} value={form.education ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, education: e.target.value }))} />
+            </div>
+            <div>
+              <label htmlFor="profil-honours" className="label">Titles conferred</label>
+              <textarea id="profil-honours" className="input" rows={2} value={form.honours ?? ''}
+                placeholder="Upadhyay, Acharya…"
+                onChange={(e) => setForm((f) => ({ ...f, honours: e.target.value }))} />
+              <p className="mt-1 text-xs text-slate-400">
+                A conferred title is written here — it is never the canonical rank above.
+              </p>
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : 'Save Changes'}</button>
@@ -221,6 +295,7 @@ export default function ProfileDetailPage() {
       )}
 
       {/* Co-representatives — multiple logins can share this one profile */}
+      {id && <PublicProfileEditor profileId={id} />}
       {id && <RepsManager maharajId={id} />}
     </div>
   );

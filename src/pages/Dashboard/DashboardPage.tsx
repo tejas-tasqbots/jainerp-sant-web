@@ -12,7 +12,7 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/maharaj/mine')
+    api.get('/sant/mine')
       .then((data: any) => {
         const list: MaharajProfile[] = Array.isArray(data) ? data : [];
         setProfiles(list);
@@ -47,7 +47,10 @@ export default function DashboardPage() {
           <div className="text-5xl mb-4">🕉️</div>
           <h2 className="text-lg font-semibold text-navy-800 mb-2">Create your profile</h2>
           <p className="text-sm text-gray-500 mb-6">
-            Register your Maharaj or Mataji profile. It becomes public to devotees once the Super Admin verifies it.
+            {/* "Maharaj"/"Mataji" are honorifics for a Muni/Aryika specifically —
+                they do not cover Kshullaks, Ailaks or Sadhvis, so they must not be
+                used as the umbrella term here (see the 2026-08-03 sant rename). */}
+            Register your Sadhu-Sadhvi profile. It becomes public to devotees once the Super Admin verifies it.
             You can later invite family or shishyas by their mobile number to help manage it.
           </p>
           <Link to="/profiles/new" className="btn-primary">Register Profile</Link>

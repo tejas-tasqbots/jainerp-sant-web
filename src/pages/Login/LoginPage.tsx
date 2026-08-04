@@ -48,10 +48,10 @@ export default function LoginPage() {
         device_name: 'Maharaj Web',
       }) as any;
       setAuth({
-        user: { id: res.user.id, mobile: res.user.mobile, name: res.user.name, maharaj_ids: res.maharaj_ids ?? [] },
+        user: { id: res.user.id, mobile: res.user.mobile, name: res.user.name, sant_ids: res.sant_ids ?? [] },
         access_token: res.access_token,
         refresh_token: res.refresh_token,
-        maharaj_ids: res.maharaj_ids ?? [],
+        sant_ids: res.sant_ids ?? [],
       });
       navigate('/');
     } catch (e) {

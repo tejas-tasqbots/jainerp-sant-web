@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 /**
- * Palette is the SAME as mandiradmin-web and devotee-web so the three portals
+ * Palette is the SAME as mandir-web and devotee-web so the three portals
  * read as one product. It previously had its own navy scale, an amber accent
  * and a green CTA, which made the Sadhu-Sadhvi portal look like a different
  * application.

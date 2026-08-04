@@ -23,7 +23,7 @@ export default function BroadcastPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}/broadcast`)
+    api.get(`/sant/${id}/broadcast`)
       .then((data: any) => setBroadcasts(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -35,7 +35,7 @@ export default function BroadcastPage() {
     setError('');
     setSent('');
     try {
-      const res = await api.post(`/maharaj/${id}/broadcast`, {
+      const res = await api.post(`/sant/${id}/broadcast`, {
         title: form.title,
         message: form.message,
         type: form.type,

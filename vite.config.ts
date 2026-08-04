@@ -9,7 +9,8 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3108',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        // sant-api serves under /api/v1, so /api/x -> /api/v1/x.
+        rewrite: (path) => path.replace(/^\/api/, '/api/v1'),
       },
     },
   },

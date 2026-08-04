@@ -21,7 +21,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
   const [error, setError] = useState('');
 
   function load() {
-    api.get(`/maharaj/${maharajId}/reps`)
+    api.get(`/sant/${maharajId}/reps`)
       .then((d: any) => setData(d))
       .catch((e) => setError(apiError(e)));
   }
@@ -32,7 +32,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
     if (!isValidPhone(mobile)) { setError('Enter a valid mobile number'); return; }
     setBusy(true); setError('');
     try {
-      await api.post(`/maharaj/${maharajId}/reps`, { mobile, name: name || undefined });
+      await api.post(`/sant/${maharajId}/reps`, { mobile, name: name || undefined });
       setMobile(''); setName('');
       load();
     } catch (e) {
@@ -45,7 +45,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
   async function remove(repId: string) {
     if (!confirm('Remove this representative? They will lose access to this profile.')) return;
     try {
-      await api.delete(`/maharaj/${maharajId}/reps/${repId}`);
+      await api.delete(`/sant/${maharajId}/reps/${repId}`);
       load();
     } catch (e) {
       setError(apiError(e));

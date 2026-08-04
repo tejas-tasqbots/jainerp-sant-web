@@ -19,8 +19,8 @@ export default function FollowersPage() {
   useEffect(() => {
     if (!id) return;
     Promise.all([
-      api.get(`/maharaj/${id}/followers/count`) as Promise<any>,
-      api.get(`/maharaj/${id}/followers`) as Promise<any>,
+      api.get(`/sant/${id}/followers/count`) as Promise<any>,
+      api.get(`/sant/${id}/followers`) as Promise<any>,
     ])
       .then(([countData, listData]) => {
         setCount(countData?.followers_count ?? null);

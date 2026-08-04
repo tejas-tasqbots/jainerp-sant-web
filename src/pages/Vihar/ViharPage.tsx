@@ -19,7 +19,7 @@ export default function ViharPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}/vihar-plan`)
+    api.get(`/sant/${id}/vihar-plan`)
       .then((data: any) => setEntries(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -30,7 +30,7 @@ export default function ViharPage() {
     setSaving(true);
     setError('');
     try {
-      const added = await api.post(`/maharaj/${id}/vihar-plan`, {
+      const added = await api.post(`/sant/${id}/vihar-plan`, {
         place: form.place,
         city: form.city || undefined,
         state: form.state,
@@ -52,7 +52,7 @@ export default function ViharPage() {
   async function deleteEntry(entryId: string) {
     if (!confirm('Delete this vihar entry?')) return;
     try {
-      await api.delete(`/maharaj/${id}/vihar-plan/${entryId}`);
+      await api.delete(`/sant/${id}/vihar-plan/${entryId}`);
       setEntries((prev) => prev.filter((e) => e.id !== entryId));
     } catch (e) {
       alert(apiError(e));

@@ -7,6 +7,10 @@ pnpm-lock.yaml
 dist/
 dist-ssr/
 *.tsbuildinfo
+# `tsc -b` emits these next to vite.config.ts. They are build output, not
+# source — no other web app in the estate tracks them.
+vite.config.js
+vite.config.d.ts
 
 # Environment variables
 .env

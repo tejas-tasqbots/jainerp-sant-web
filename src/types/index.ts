@@ -1,18 +1,25 @@
-export interface MaharajRepUser {
+export interface SantRepUser {
   id: string;
   mobile: string;
   name: string | null;
-  maharaj_ids: string[];
+  sant_ids: string[];
 }
 
 export interface AuthState {
-  user: MaharajRepUser | null;
+  user: SantRepUser | null;
   access_token: string | null;
   refresh_token: string | null;
-  maharaj_ids: string[];
+  sant_ids: string[];
 }
 
 export interface MaharajProfile {
+  /** Long-form public profile (migration 034) — what a devotee reads. */
+  about?: string | null;
+  diksha_place?: string | null;
+  education?: string | null;
+  /** Conferred titles. Never the canonical `type` rank. */
+  honours?: string | null;
+  lineage?: string | null;
   id: string;
   name: string;
   /** Canonical rank. The honorific ("Maharaj Ji") is `type_display`. */

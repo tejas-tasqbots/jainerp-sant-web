@@ -28,7 +28,7 @@ export default function LocationPage() {
 
   useEffect(() => {
     if (!id) return;
-    api.get(`/maharaj/${id}/location`)
+    api.get(`/sant/${id}/location`)
       .then((data: any) => setHistory(Array.isArray(data) ? data : []))
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -37,7 +37,7 @@ export default function LocationPage() {
 
   function loadProposals() {
     if (!id) return;
-    api.get(`/maharaj/${id}/location/proposals?status=pending`)
+    api.get(`/sant/${id}/location/proposals?status=pending`)
       .then((data: any) => setProposals(Array.isArray(data) ? data : []))
       .catch(() => {});
   }
@@ -45,11 +45,11 @@ export default function LocationPage() {
   async function decideProposal(proposalId: string, action: 'approve' | 'reject') {
     setActing(proposalId);
     try {
-      await api.patch(`/maharaj/${id}/location/proposals/${proposalId}/${action}`, {});
+      await api.patch(`/sant/${id}/location/proposals/${proposalId}/${action}`, {});
       setProposals((p) => p.filter((x) => x.id !== proposalId));
       if (action === 'approve') {
         // Approved proposal becomes the current location — refresh history.
-        const data: any = await api.get(`/maharaj/${id}/location`);
+        const data: any = await api.get(`/sant/${id}/location`);
         setHistory(Array.isArray(data) ? data : []);
         setNotice('Proposal approved — it is now your current location.');
       } else {
@@ -76,7 +76,7 @@ export default function LocationPage() {
         lat: form.lat ? parseFloat(form.lat) : undefined,
         lng: form.lng ? parseFloat(form.lng) : undefined,
       };
-      const added = await api.put(`/maharaj/${id}/location`, payload) as any;
+      const added = await api.put(`/sant/${id}/location`, payload) as any;
       const newLoc: import('../../types').Location = { ...added, is_current: true, created_at: new Date().toISOString() };
       setHistory((h) => [newLoc, ...h.map((l) => ({ ...l, is_current: false }))]);
       setNotice(`Location updated — ${added.followers_notified ?? 0} follower(s) notified`);

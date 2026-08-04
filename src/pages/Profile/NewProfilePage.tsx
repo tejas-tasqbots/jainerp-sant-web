@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ASCETIC_TYPES, SECTS } from '../../lib/ascetic'
+import { ASCETIC_TYPES, SECTS, subSectsFor } from '../../lib/ascetic'
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
@@ -11,7 +11,7 @@ export default function NewProfilePage() {
 
   // One profile per login — if this account already has one, send them to it.
   useEffect(() => {
-    api.get('/maharaj/mine')
+    api.get('/sant/mine')
       .then((data: any) => {
         const list = Array.isArray(data) ? data : [];
         if (list.length >= 1) navigate(`/profiles/${list[0].id}`, { replace: true });
@@ -38,24 +38,30 @@ export default function NewProfilePage() {
     setLoading(true);
     try {
       const langs = form.languages.split(',').map((l) => l.trim()).filter(Boolean);
-      const res = await api.post('/maharaj', {
+      const res = await api.post('/sant', {
         name: form.name,
         type: form.type,
         samuday: form.samuday,
+        // The form has always had a Sampradaya picker but never sent it, so
+        // every profile registered here arrived with sect NULL and landed on
+        // the super admin's "sect not set" backfill list. `|| undefined`
+        // because the DTO validates against the two sects — '' would 400.
+        sect: form.sect || undefined,
+        sub_sect: form.sub_sect || undefined,
         diksha_year: form.diksha_year ? parseInt(form.diksha_year) : undefined,
         guru_name: form.guru_name || undefined,
         bio: form.bio || undefined,
         languages: langs.length ? langs : undefined,
       }) as any;
-      // Refresh auth to pick up the new maharaj_id (refresh response includes maharaj_ids)
+      // Refresh auth to pick up the new maharaj_id (refresh response includes sant_ids)
       if (user && access_token && refresh_token) {
         try {
           const refreshed = await api.post('/auth/refresh', { refresh_token }) as any;
           setAuth({
-            user: { ...user, maharaj_ids: refreshed.maharaj_ids ?? [] },
+            user: { ...user, sant_ids: refreshed.sant_ids ?? [] },
             access_token: refreshed.access_token ?? access_token,
             refresh_token,
-            maharaj_ids: refreshed.maharaj_ids ?? [],
+            sant_ids: refreshed.sant_ids ?? [],
           });
         } catch {}
       }
@@ -107,6 +113,19 @@ export default function NewProfilePage() {
               {SECTS.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
             </select>
           </div>
+          {/* Panth/gaccha, offered only once a sect is chosen — the lists differ
+              by tradition. Free text on the server by design, so the common
+              options are a convenience, not the whole set. */}
+          {form.sect && (
+            <div>
+              <label htmlFor="newpro-sub-sect" className="label">Panth / Gaccha</label>
+              <select id="newpro-sub-sect" className="input" value={form.sub_sect ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, sub_sect: e.target.value }))}>
+                <option value="">—</option>
+                {subSectsFor(form.sect).map((s) => <option key={s} value={s}>{s}</option>)}
+              </select>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label htmlFor="newpro-diksha-year" className="label">Diksha Year</label>
