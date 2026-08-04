@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 import api from '../../lib/api';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 
-export default function Sidebar({ open = false, onClose }: { open?: boolean; onClose?: () => void }) {
+export default function Sidebar({ open = false }: { open?: boolean }) {
   const { t } = useTranslation();
   const { user, logout: storeLogout } = useAuthStore();
   const navigate = useNavigate();

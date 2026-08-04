@@ -18,7 +18,8 @@ export default function Layout() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar open={navOpen} onClose={() => setNavOpen(false)} />
+      {/* Closing is handled here: on route change and via the scrim below. */}
+      <Sidebar open={navOpen} />
 
       {/* Scrim — only while the drawer is open, and only on small screens. */}
       {navOpen && (
