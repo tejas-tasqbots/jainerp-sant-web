@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
@@ -13,6 +14,7 @@ function timeAgo(d: string) {
 }
 
 export default function BroadcastPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   const [broadcasts, setBroadcasts] = useState<Broadcast[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,19 +58,19 @@ export default function BroadcastPage() {
 
   return (
     <div>
-      <PageHeader title="Broadcast" subtitle="Send a message to all followers (max 5 per day)" />
+      <PageHeader title={t('ui.broadcast')} subtitle={t('ui.broadcastHelp')} />
 
       <div className="card mb-6">
-        <h2 className="font-semibold text-navy-800 mb-4">New Broadcast</h2>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.newBroadcast')}</h2>
         <form onSubmit={handleSend} className="space-y-4">
           <div>
-            <label htmlFor="broadc-title" className="label">Title *</label>
-            <input id="broadc-title" className="input" placeholder="Pravachan at Shantinath Mandir" value={form.title}
+            <label htmlFor="broadc-title" className="label">{t('ui.titleReq')}</label>
+            <input id="broadc-title" className="input" placeholder={t('ui.broadcastTitlePh')} value={form.title}
               onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))} required />
           </div>
           <div>
-            <label htmlFor="broadc-message" className="label">Message *</label>
-            <textarea id="broadc-message" className="input" rows={4} placeholder="Join us for evening pravachan at 6PM. All are welcome." value={form.message}
+            <label htmlFor="broadc-message" className="label">{t('ui.messageReq')}</label>
+            <textarea id="broadc-message" className="input" rows={4} placeholder={t('ui.broadcastBodyPh')} value={form.message}
               onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -76,14 +78,14 @@ export default function BroadcastPage() {
               <label htmlFor="broadc-type" className="label">Type</label>
               <select id="broadc-type" className="input" value={form.type}
                 onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
-                <option value="announcement">Announcement</option>
-                <option value="event">Event</option>
-                <option value="location">Location Update</option>
-                <option value="general">General</option>
+                <option value="announcement">{t('ui.announcement')}</option>
+                <option value="event">{t('ui.event')}</option>
+                <option value="location">{t('ui.locationUpdate')}</option>
+                <option value="general">{t('ui.general')}</option>
               </select>
             </div>
             <div>
-              <label htmlFor="broadc-link-optional" className="label">Link (optional)</label>
+              <label htmlFor="broadc-link-optional" className="label">{t('ui.linkOpt')}</label>
               <input id="broadc-link-optional" className="input" placeholder="https://…" value={form.link}
                 onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))} />
             </div>
@@ -97,9 +99,9 @@ export default function BroadcastPage() {
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-navy-800 mb-4">Recent Broadcasts</h2>
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
-        {!loading && broadcasts.length === 0 && <p className="text-sm text-gray-500">No broadcasts sent yet</p>}
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.recentBroadcasts')}</h2>
+        {loading && <p className="text-sm text-gray-500">{t('ui.loading')}</p>}
+        {!loading && broadcasts.length === 0 && <p className="text-sm text-gray-500">{t('ui.noBroadcasts')}</p>}
         <div className="space-y-3">
           {broadcasts.map((b) => (
             <div key={b.id} className="p-3 bg-gray-50 rounded-lg">

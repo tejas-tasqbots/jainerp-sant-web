@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import api, { apiError } from '../lib/api';
 import { isValidPhone, PhoneInput } from './PhoneInput';
 
@@ -14,6 +15,7 @@ interface RepsData {
  * (family / shishyas / office bearers) — each with their own mobile.
  */
 export function RepsManager({ maharajId }: { maharajId: string }) {
+  const { t } = useTranslation()
   const [data, setData] = useState<RepsData | null>(null);
   const [mobile, setMobile] = useState('');
   const [name, setName] = useState('');
@@ -54,7 +56,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
 
   return (
     <div className="card mb-6">
-      <h3 className="font-semibold text-navy-800 mb-1">Representatives</h3>
+      <h3 className="font-semibold text-navy-800 mb-1">{t('ui.representatives')}</h3>
       <p className="text-xs text-gray-500 mb-4">
         People who can log in with their own mobile number and manage this profile. There is one profile —
         these are additional logins that share it.
@@ -70,7 +72,7 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
               <p className="text-sm font-medium text-gray-800 truncate">{data.primary.name || 'Primary representative'}</p>
               <p className="text-xs text-gray-500">{data.primary.mobile}</p>
             </div>
-            <span className="badge-navy text-[10px]">Primary</span>
+            <span className="badge-navy text-[10px]">{t('ui.primary')}</span>
           </div>
         )}
         {data?.co_reps.map((r) => (
@@ -82,21 +84,21 @@ export function RepsManager({ maharajId }: { maharajId: string }) {
               <p className="text-sm font-medium text-gray-800 truncate">{r.name || 'Co-representative'}</p>
               <p className="text-xs text-gray-500">{r.mobile} {r.linked ? '' : '· invited (not logged in yet)'}</p>
             </div>
-            <button onClick={() => remove(r.id)} className="text-xs text-red-500 hover:text-red-700">Remove</button>
+            <button onClick={() => remove(r.id)} className="text-xs text-red-500 hover:text-red-700">{t('ui.remove')}</button>
           </div>
         ))}
         {data && data.co_reps.length === 0 && (
-          <p className="text-xs text-gray-400 px-1">No co-representatives yet.</p>
+          <p className="text-xs text-gray-400 px-1">{t('ui.noCoReps')}</p>
         )}
       </div>
 
       <form onSubmit={add} className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-end">
         <div className="flex-1">
-          <label className="label">Name (optional)</label>
+          <label className="label">{t('ui.nameOpt')}</label>
           <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Shishya name" />
         </div>
         <div className="flex-1">
-          <label className="label">Mobile number</label>
+          <label className="label">{t('ui.mobileNumber')}</label>
           <PhoneInput value={mobile} onChange={setMobile} />
         </div>
         <button type="submit" disabled={busy} className="btn-primary whitespace-nowrap">{busy ? 'Adding…' : 'Add Rep'}</button>

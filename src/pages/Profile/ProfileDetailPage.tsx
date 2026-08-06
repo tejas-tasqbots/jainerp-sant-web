@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { ASCETIC_TYPES, asceticTitle, SECTS, subSectsFor } from '../../lib/ascetic'
 import { Link, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
@@ -10,6 +11,7 @@ import { ErrorPanel, Loading, PageHeader } from '../../components/kit';
 import type { MaharajProfile } from '../../types';
 
 export default function ProfileDetailPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   const [profile, setProfile] = useState<MaharajProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,8 +98,8 @@ export default function ProfileDetailPage() {
       {/* The name lives in the hero below, so the page heading names the SCREEN
           instead of repeating it. */}
       <PageHeader
-        title="My Profile"
-        subtitle="What devotees see about you in the JainERP app"
+        title={t('ui.myProfile')}
+        subtitle={t('ui.whatDevoteesSee')}
         back={false}
         actions={
           <button onClick={() => setEditing((v) => !v)} className="btn-outline">
@@ -123,7 +125,7 @@ export default function ProfileDetailPage() {
               onClick={() => fileRef.current?.click()}
               disabled={photoUploading}
               className="absolute -bottom-1 -right-1 w-7 h-7 bg-cta rounded-full flex items-center justify-center text-white text-xs font-bold hover:bg-cta-hover"
-              title="Change photo"
+              title={t('ui.changePhoto')}
             >
               {photoUploading ? '…' : '📷'}
             </button>
@@ -132,12 +134,12 @@ export default function ProfileDetailPage() {
                 onClick={removePhoto}
                 disabled={photoUploading}
                 className="absolute -top-1 -right-1 w-6 h-6 bg-white/90 text-red-600 rounded-full flex items-center justify-center text-xs font-bold hover:bg-white"
-                title="Remove photo"
+                title={t('ui.removePhoto')}
               >
                 ×
               </button>
             )}
-            <input ref={fileRef} type="file" accept="image/*" aria-label="Choose a profile photo" className="hidden"
+            <input ref={fileRef} type="file" accept="image/*" aria-label={t('ui.choosePhoto')} className="hidden"
               onChange={(e) => e.target.files?.[0] && uploadPhoto(e.target.files[0])} />
           </div>
           <div>
@@ -146,7 +148,7 @@ export default function ProfileDetailPage() {
               {profile.verified ? (
                 <span className="badge-green text-xs">✓ Verified</span>
               ) : (
-                <span className="bg-yellow-400/20 text-yellow-200 badge text-xs">Pending Verification</span>
+                <span className="bg-yellow-400/20 text-yellow-200 badge text-xs">{t('ui.pendingVerification')}</span>
               )}
             </div>
             <p className="text-white/80 text-sm">{profile.samuday} · {profile.type_display ?? asceticTitle(profile.type)}</p>
@@ -189,7 +191,7 @@ export default function ProfileDetailPage() {
       {/* Edit form */}
       {editing && (
         <div className="card mb-6">
-          <h3 className="font-semibold text-navy-800 mb-4">Edit Profile</h3>
+          <h3 className="font-semibold text-navy-800 mb-4">{t('ui.editProfile')}</h3>
           <form onSubmit={saveEdit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div>
@@ -207,11 +209,11 @@ export default function ProfileDetailPage() {
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="profil-samuday" className="label">Samuday</label>
+                <label htmlFor="profil-samuday" className="label">{t('ui.samuday')}</label>
                 <input id="profil-samuday" className="input" value={form.samuday ?? ''} onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} />
               </div>
               <div>
-                <label htmlFor="profil-diksha-year" className="label">Diksha Year</label>
+                <label htmlFor="profil-diksha-year" className="label">{t('ui.dikshaYear')}</label>
                 <input id="profil-diksha-year" className="input" type="number" value={form.diksha_year ?? ''} onChange={(e) => setForm((f) => ({ ...f, diksha_year: parseInt(e.target.value) || undefined }))} />
               </div>
             </div>
@@ -220,7 +222,7 @@ export default function ProfileDetailPage() {
                 what the sant directory will filter on. */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="profil-sect" className="label">Sect (sampradaya)</label>
+                <label htmlFor="profil-sect" className="label">{t('ui.sect')}</label>
                 <select id="profil-sect" className="input" value={form.sect ?? ''}
                   onChange={(e) => setForm((f) => ({
                     ...f,
@@ -233,7 +235,7 @@ export default function ProfileDetailPage() {
               </div>
               {form.sect && (
                 <div>
-                  <label htmlFor="profil-sub-sect" className="label">Panth / Gaccha</label>
+                  <label htmlFor="profil-sub-sect" className="label">{t('ui.panthGaccha')}</label>
                   <select id="profil-sub-sect" className="input" value={form.sub_sect ?? ''}
                     onChange={(e) => setForm((f) => ({ ...f, sub_sect: e.target.value || undefined }))}>
                     <option value="">—</option>
@@ -243,7 +245,7 @@ export default function ProfileDetailPage() {
               )}
             </div>
             <div>
-              <label htmlFor="profil-guru-name" className="label">Guru Name</label>
+              <label htmlFor="profil-guru-name" className="label">{t('ui.guruName')}</label>
               <input id="profil-guru-name" className="input" value={form.guru_name ?? ''} onChange={(e) => setForm((f) => ({ ...f, guru_name: e.target.value }))} />
             </div>
             <div>
@@ -255,32 +257,32 @@ export default function ProfileDetailPage() {
                 on the profile page itself. None are identity fields, so unlike
                 name/type they stay editable after verification. */}
             <div>
-              <label htmlFor="profil-about" className="label">About</label>
+              <label htmlFor="profil-about" className="label">{t('ui.about')}</label>
               <textarea id="profil-about" className="input" rows={5} value={form.about ?? ''}
-                placeholder="Their life, their work, what they are known for…"
+                placeholder={t('ui.lifeWorkPh')}
                 onChange={(e) => setForm((f) => ({ ...f, about: e.target.value }))} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label htmlFor="profil-diksha-place" className="label">Diksha place</label>
+                <label htmlFor="profil-diksha-place" className="label">{t('ui.dikshaPlace')}</label>
                 <input id="profil-diksha-place" className="input" value={form.diksha_place ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, diksha_place: e.target.value }))} />
               </div>
               <div>
-                <label htmlFor="profil-lineage" className="label">Lineage / parampara</label>
+                <label htmlFor="profil-lineage" className="label">{t('ui.lineage')}</label>
                 <input id="profil-lineage" className="input" value={form.lineage ?? ''}
                   onChange={(e) => setForm((f) => ({ ...f, lineage: e.target.value }))} />
               </div>
             </div>
             <div>
-              <label htmlFor="profil-education" className="label">Study & scholarship</label>
+              <label htmlFor="profil-education" className="label">{t('ui.studyScholarship')}</label>
               <textarea id="profil-education" className="input" rows={2} value={form.education ?? ''}
                 onChange={(e) => setForm((f) => ({ ...f, education: e.target.value }))} />
             </div>
             <div>
-              <label htmlFor="profil-honours" className="label">Titles conferred</label>
+              <label htmlFor="profil-honours" className="label">{t('ui.titlesConferred')}</label>
               <textarea id="profil-honours" className="input" rows={2} value={form.honours ?? ''}
-                placeholder="Upadhyay, Acharya…"
+                placeholder={t('ui.titlesPh')}
                 onChange={(e) => setForm((f) => ({ ...f, honours: e.target.value }))} />
               <p className="mt-1 text-xs text-slate-400">
                 A conferred title is written here — it is never the canonical rank above.
@@ -288,7 +290,7 @@ export default function ProfileDetailPage() {
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : 'Save Changes'}</button>
-              <button type="button" onClick={() => setEditing(false)} className="btn-outline">Cancel</button>
+              <button type="button" onClick={() => setEditing(false)} className="btn-outline">{t('ui.cancel')}</button>
             </div>
           </form>
         </div>

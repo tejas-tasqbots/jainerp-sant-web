@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
@@ -26,6 +27,7 @@ function formatDate(d?: string) {
 }
 
 export default function RequirementsPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   // Alms terminology depends on the profile's sect (Aahar Charya vs Gochari).
   const [sect, setSect] = useState<string | null>(null);
@@ -101,14 +103,14 @@ export default function RequirementsPage() {
 
   return (
     <div>
-      <PageHeader title="Requirements" subtitle="Aahar, medical and other needs — visible to followers and linked temples" />
+      <PageHeader title={t('ui.requirements')} subtitle={t('ui.requirementsHelp')} />
 
       <div className="card mb-6">
-        <h2 className="font-semibold text-navy-800 mb-4">Post Requirement</h2>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.postRequirement')}</h2>
         <form onSubmit={addRequirement} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="requir-type" className="label">Type *</label>
+              <label htmlFor="requir-type" className="label">{t('ui.typeReq')}</label>
               <select id="requir-type" className="input" value={form.type}
                 onChange={(e) => setForm((f) => ({ ...f, type: e.target.value }))}>
                 {Object.entries(TYPE_LABELS).map(([val, t]) => (
@@ -117,13 +119,13 @@ export default function RequirementsPage() {
               </select>
             </div>
             <div>
-              <label htmlFor="requir-needed-on" className="label">Needed On</label>
+              <label htmlFor="requir-needed-on" className="label">{t('ui.neededOn')}</label>
               <input id="requir-needed-on" className="input" type="date" value={form.needed_on}
                 onChange={(e) => setForm((f) => ({ ...f, needed_on: e.target.value }))} />
             </div>
           </div>
           <div>
-            <label htmlFor="requir-description" className="label">Description *</label>
+            <label htmlFor="requir-description" className="label">{t('ui.descriptionReq')}</label>
             <textarea id="requir-description" className="input" rows={2} required
               placeholder="e.g. Chuka required for 4 sadhus on 14 June, Adajan area"
               value={form.description}
@@ -131,17 +133,17 @@ export default function RequirementsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="requir-city" className="label">City</label>
+              <label htmlFor="requir-city" className="label">{t('ui.city')}</label>
               <input id="requir-city" className="input" placeholder="Surat" value={form.city}
                 onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
             </div>
             <div>
-              <label htmlFor="requir-visibility" className="label">Visibility</label>
+              <label htmlFor="requir-visibility" className="label">{t('ui.visibility')}</label>
               <select id="requir-visibility" className="input" value={form.visibility}
                 onChange={(e) => setForm((f) => ({ ...f, visibility: e.target.value }))}>
-                <option value="followers_and_temples">Followers & Temples</option>
-                <option value="temples_only">Temples Only</option>
-                <option value="private">Private</option>
+                <option value="followers_and_temples">{t('ui.followersTemples')}</option>
+                <option value="temples_only">{t('ui.templesOnly')}</option>
+                <option value="private">{t('ui.private')}</option>
               </select>
             </div>
           </div>
@@ -154,12 +156,10 @@ export default function RequirementsPage() {
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-navy-800 mb-4">
-          All Requirements
-          <span className="ml-2 text-sm font-normal text-gray-500">({items.length})</span>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.allRequirements')}<span className="ml-2 text-sm font-normal text-gray-500">({items.length})</span>
         </h2>
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
-        {!loading && items.length === 0 && <p className="text-sm text-gray-500">No requirements posted yet</p>}
+        {loading && <p className="text-sm text-gray-500">{t('ui.loading')}</p>}
+        {!loading && items.length === 0 && <p className="text-sm text-gray-500">{t('ui.noRequirements')}</p>}
         <div className="space-y-3">
           {items.map((req) => (
             <div key={req.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
@@ -180,14 +180,14 @@ export default function RequirementsPage() {
                     <select
                       value={req.status}
                       onChange={(e) => updateStatus(req.id, e.target.value)}
-                      aria-label="Change requirement status" title="Change requirement status" className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+                      aria-label={t('ui.changeReqStatus')} title={t('ui.changeReqStatus')} className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
                     >
                       <option value="open">Open</option>
-                      <option value="in_progress">In Progress</option>
-                      <option value="fulfilled">Fulfilled</option>
+                      <option value="in_progress">{t('ui.inProgress')}</option>
+                      <option value="fulfilled">{t('ui.fulfilled')}</option>
                     </select>
                   )}
-                  <button onClick={() => deleteReq(req.id)} className="text-xs text-gray-400 hover:text-danger-500">Delete</button>
+                  <button onClick={() => deleteReq(req.id)} className="text-xs text-gray-400 hover:text-danger-500">{t('ui.delete')}</button>
                 </div>
               </div>
             </div>

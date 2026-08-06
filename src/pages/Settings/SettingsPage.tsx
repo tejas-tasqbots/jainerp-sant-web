@@ -1,10 +1,12 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
 import { useAuthStore } from '../../store/authStore';
 
 export default function SettingsPage() {
+  const { t } = useTranslation()
   const { user, logout: storeLogout, setAuth, access_token, refresh_token, sant_ids } = useAuthStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? '');
@@ -38,19 +40,19 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-lg">
-      <PageHeader title="Settings" subtitle="Your account and language" back={false} />
+      <PageHeader title={t('ui.settings')} subtitle={t('ui.settingsHelp')} back={false} />
 
       <div className="card mb-4">
-        <h2 className="font-semibold text-navy-800 mb-4">Profile Information</h2>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.profileInformation')}</h2>
         <div className="mb-4">
-          <p className="text-sm text-gray-500">Mobile</p>
+          <p className="text-sm text-gray-500">{t('ui.mobile')}</p>
           <p className="font-medium text-gray-800">{user?.mobile}</p>
         </div>
         <form onSubmit={handleNameUpdate} className="space-y-4">
           <div>
-            <label htmlFor="settin-display-name" className="label">Display Name</label>
+            <label htmlFor="settin-display-name" className="label">{t('ui.displayName')}</label>
             <input id="settin-display-name" className="input" value={name} onChange={(e) => setName(e.target.value)}
-              placeholder="Enter your name" />
+              placeholder={t('ui.enterYourName')} />
           </div>
           {error && <p className="text-sm text-danger-500">{error}</p>}
           {success && <p className="text-sm text-cta-600">{success}</p>}
@@ -61,7 +63,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="card mb-4">
-        <h2 className="font-semibold text-navy-800 mb-2">Account</h2>
+        <h2 className="font-semibold text-navy-800 mb-2">{t('ui.account')}</h2>
         <p className="text-sm text-gray-500 mb-4">
           You are logged in as a Sadhu-Sadhvi representative managing{' '}
           <strong>{sant_ids.length}</strong> profile(s).
@@ -69,11 +71,9 @@ export default function SettingsPage() {
       </div>
 
       <div className="card border-red-100">
-        <h2 className="font-semibold text-danger-500 mb-2">Sign Out</h2>
-        <p className="text-sm text-gray-500 mb-4">
-          You will be signed out of all sessions on this device.
-        </p>
-        <button onClick={handleLogout} className="btn-danger">Sign Out</button>
+        <h2 className="font-semibold text-danger-500 mb-2">{t('ui.signOut')}</h2>
+        <p className="text-sm text-gray-500 mb-4">{t('ui.signOutAll')}</p>
+        <button onClick={handleLogout} className="btn-danger">{t('ui.signOut')}</button>
       </div>
     </div>
   );

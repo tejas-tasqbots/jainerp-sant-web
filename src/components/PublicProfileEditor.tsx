@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { BookOpen, ImagePlus, Link2, Plus, Trash2, X } from 'lucide-react';
 import api, { apiError } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
@@ -34,6 +35,7 @@ const PUB_KINDS = ['book', 'article', 'discourse', 'commentary', 'translation', 
  * the wrong name by changing the id in a URL.
  */
 export function PublicProfileEditor({ profileId }: { profileId: string }) {
+  const { t } = useTranslation()
   const [links, setLinks] = useState<ProfileLink[]>([]);
   const [pubs, setPubs] = useState<Publication[]>([]);
   const [newLink, setNewLink] = useState({ kind: 'website', label: '', url: '' });
@@ -129,11 +131,8 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
       {/* ── links ──────────────────────────────────────────────────────── */}
       <section className="rounded-xl border border-slate-200 bg-white p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <Link2 size={16} /> Links
-        </h3>
-        <p className="mt-1 text-xs text-slate-500">
-          One account per platform — adding a second replaces the first.
-        </p>
+          <Link2 size={16} />{t('ui.links')}</h3>
+        <p className="mt-1 text-xs text-slate-500">{t('ui.oneAccount')}</p>
 
         <div className="mt-3 space-y-2">
           {links.map(l => (
@@ -143,13 +142,13 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
                 className="min-w-0 flex-1 truncate text-sm text-amber-700 hover:underline">
                 {l.label || l.url}
               </a>
-              <button onClick={() => removeLink(l.id)} aria-label="Remove link"
+              <button onClick={() => removeLink(l.id)} aria-label={t('ui.removeLink')}
                 className="p-1 text-slate-400 hover:text-red-600">
                 <Trash2 size={15} />
               </button>
             </div>
           ))}
-          {links.length === 0 && <p className="text-sm text-slate-400">No links yet.</p>}
+          {links.length === 0 && <p className="text-sm text-slate-400">{t('ui.noLinks')}</p>}
         </div>
 
         <div className="mt-3 grid grid-cols-12 gap-2">
@@ -158,7 +157,7 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
             {LINK_KINDS.map(k => <option key={k} value={k}>{k}</option>)}
           </select>
           <input className="col-span-3 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-            placeholder="Label (optional)" value={newLink.label}
+            placeholder={t('ui.labelOpt')} value={newLink.label}
             onChange={e => setNewLink(l => ({ ...l, label: e.target.value }))} />
           <input className="col-span-4 rounded-lg border border-slate-200 px-2 py-2 text-sm"
             placeholder="youtube.com/@channel" value={newLink.url}
@@ -174,11 +173,8 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
       {/* ── publications ───────────────────────────────────────────────── */}
       <section className="rounded-xl border border-slate-200 bg-white p-4">
         <h3 className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-          <BookOpen size={16} /> Published works
-        </h3>
-        <p className="mt-1 text-xs text-slate-500">
-          Books, commentaries, translations and pravachan series.
-        </p>
+          <BookOpen size={16} />{t('ui.publishedWorks')}</h3>
+        <p className="mt-1 text-xs text-slate-500">{t('ui.worksHelp')}</p>
 
         <div className="mt-3 space-y-2">
           {pubs.map(p => (
@@ -190,41 +186,41 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
                 </p>
                 {p.description && <p className="mt-1 text-xs text-slate-500">{p.description}</p>}
               </div>
-              <button onClick={() => removePub(p.id)} aria-label="Remove publication"
+              <button onClick={() => removePub(p.id)} aria-label={t('ui.removePublication')}
                 className="p-1 text-slate-400 hover:text-red-600">
                 <Trash2 size={15} />
               </button>
             </div>
           ))}
-          {pubs.length === 0 && <p className="text-sm text-slate-400">Nothing published yet.</p>}
+          {pubs.length === 0 && <p className="text-sm text-slate-400">{t('ui.nothingPublished')}</p>}
         </div>
 
         <div className="mt-3 space-y-2">
           <div className="grid grid-cols-12 gap-2">
             <input className="col-span-6 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-              placeholder="Title *" value={newPub.title}
+              placeholder={t('ui.titleReq')} value={newPub.title}
               onChange={e => setNewPub(p => ({ ...p, title: e.target.value }))} />
             <select className="col-span-3 rounded-lg border border-slate-200 px-2 py-2 text-sm"
               value={newPub.kind} onChange={e => setNewPub(p => ({ ...p, kind: e.target.value }))}>
               {PUB_KINDS.map(k => <option key={k} value={k}>{k}</option>)}
             </select>
             <input className="col-span-3 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-              type="number" placeholder="Year" value={newPub.year}
+              type="number" placeholder={t('ui.year')} value={newPub.year}
               onChange={e => setNewPub(p => ({ ...p, year: e.target.value }))} />
           </div>
           <div className="grid grid-cols-12 gap-2">
             <input className="col-span-3 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-              placeholder="Language" value={newPub.language}
+              placeholder={t('ui.language')} value={newPub.language}
               onChange={e => setNewPub(p => ({ ...p, language: e.target.value }))} />
             <input className="col-span-4 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-              placeholder="Publisher" value={newPub.publisher}
+              placeholder={t('ui.publisher')} value={newPub.publisher}
               onChange={e => setNewPub(p => ({ ...p, publisher: e.target.value }))} />
             <input className="col-span-5 rounded-lg border border-slate-200 px-2 py-2 text-sm"
-              placeholder="Link (optional)" value={newPub.url}
+              placeholder={t('ui.linkOpt')} value={newPub.url}
               onChange={e => setNewPub(p => ({ ...p, url: e.target.value }))} />
           </div>
           <textarea className="w-full rounded-lg border border-slate-200 px-2 py-2 text-sm" rows={2}
-            placeholder="Short description" value={newPub.description}
+            placeholder={t('ui.shortDescription')} value={newPub.description}
             onChange={e => setNewPub(p => ({ ...p, description: e.target.value }))} />
 
           <div className="flex items-center gap-3">
@@ -232,22 +228,20 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
               <div className="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
                 <img src={cover.dataUri} alt="" className="h-10 w-8 rounded object-cover" />
                 <span className="max-w-[12rem] truncate text-xs text-slate-600">{cover.name}</span>
-                <button onClick={() => setCover(null)} aria-label="Remove cover"
+                <button onClick={() => setCover(null)} aria-label={t('ui.removeCover')}
                   className="p-0.5 text-slate-400 hover:text-red-600">
                   <X size={14} />
                 </button>
               </div>
             ) : (
               <label className="inline-flex cursor-pointer items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-sm text-slate-700">
-                <ImagePlus size={15} /> Cover image
-                <input type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
+                <ImagePlus size={15} />{t('ui.coverImage')}<input type="file" accept="image/jpeg,image/png,image/webp" className="hidden"
                   onChange={e => { const f = e.target.files?.[0]; if (f) void pickCover(f); e.target.value = ''; }} />
               </label>
             )}
             <button onClick={addPub} disabled={busy}
               className="inline-flex items-center gap-1 rounded-lg bg-slate-800 px-3 py-2 text-sm text-white disabled:opacity-50">
-              <Plus size={15} /> Add publication
-            </button>
+              <Plus size={15} />{t('ui.addPublication')}</button>
           </div>
         </div>
       </section>

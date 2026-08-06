@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
@@ -10,6 +11,7 @@ function formatDate(d?: string) {
 }
 
 export default function ViharPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   const [entries, setEntries] = useState<ViharEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -61,42 +63,42 @@ export default function ViharPage() {
 
   return (
     <div>
-      <PageHeader title="Vihar Plan" subtitle="Journey / travel schedule visible to devotees" />
+      <PageHeader title={t('ui.viharPlan')} subtitle={t('ui.viharHelp')} />
 
       <div className="card mb-6">
-        <h2 className="font-semibold text-navy-800 mb-4">Add Stop</h2>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.addStop')}</h2>
         <form onSubmit={addEntry} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="viharp-expected-from" className="label">Expected From *</label>
+              <label htmlFor="viharp-expected-from" className="label">{t('ui.expectedFromReq')}</label>
               <input id="viharp-expected-from" className="input" type="date" value={form.expected_from}
                 onChange={(e) => setForm((f) => ({ ...f, expected_from: e.target.value }))} required />
             </div>
             <div>
-              <label htmlFor="viharp-expected-to" className="label">Expected To</label>
+              <label htmlFor="viharp-expected-to" className="label">{t('ui.expectedTo')}</label>
               <input id="viharp-expected-to" className="input" type="date" value={form.expected_to}
                 onChange={(e) => setForm((f) => ({ ...f, expected_to: e.target.value }))} />
             </div>
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div>
-              <label htmlFor="viharp-place" className="label">Place *</label>
+              <label htmlFor="viharp-place" className="label">{t('ui.placeReq')}</label>
               <input id="viharp-place" className="input" placeholder="Palitana" value={form.place}
                 onChange={(e) => setForm((f) => ({ ...f, place: e.target.value }))} required />
             </div>
             <div>
-              <label htmlFor="viharp-city" className="label">City</label>
+              <label htmlFor="viharp-city" className="label">{t('ui.city')}</label>
               <input id="viharp-city" className="input" placeholder="Palitana" value={form.city}
                 onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
             </div>
             <div>
-              <label htmlFor="viharp-state" className="label">State *</label>
+              <label htmlFor="viharp-state" className="label">{t('ui.stateReq')}</label>
               <input id="viharp-state" className="input" placeholder="Gujarat" value={form.state}
                 onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} required />
             </div>
           </div>
           <div>
-            <label htmlFor="viharp-notes" className="label">Notes</label>
+            <label htmlFor="viharp-notes" className="label">{t('ui.notes')}</label>
             <textarea id="viharp-notes" className="input" rows={2} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
@@ -108,9 +110,9 @@ export default function ViharPage() {
       </div>
 
       <div className="card">
-        <h2 className="font-semibold text-navy-800 mb-4">Upcoming Journey</h2>
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
-        {!loading && entries.length === 0 && <p className="text-sm text-gray-500">No vihar plan entries yet</p>}
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.upcomingJourney')}</h2>
+        {loading && <p className="text-sm text-gray-500">{t('ui.loading')}</p>}
+        {!loading && entries.length === 0 && <p className="text-sm text-gray-500">{t('ui.noViharEntries')}</p>}
         <div className="relative">
           {entries.length > 1 && (
             <div className="absolute left-2.5 top-4 bottom-4 w-0.5 bg-gray-200" />

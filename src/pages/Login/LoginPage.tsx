@@ -130,9 +130,7 @@ export default function LoginPage() {
                 type="button"
                 onClick={() => { setStep('mobile'); setOtp(''); setError(''); }}
                 className="btn-outline w-full"
-              >
-                Change number
-              </button>
+              >{t('ui.changeNumber')}</button>
             </form>
           )}
         </div>

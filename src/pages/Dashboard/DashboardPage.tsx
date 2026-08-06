@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import type { MaharajProfile } from '../../types';
 
 export default function DashboardPage() {
+  const { t } = useTranslation()
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [profiles, setProfiles] = useState<MaharajProfile[]>([]);
@@ -40,12 +42,12 @@ export default function DashboardPage() {
     <div>
       <div className="page-header">
         <h1 className="page-title">Welcome{user?.name ? `, ${user.name}` : ''} 🙏</h1>
-        <p className="page-subtitle">Set up your Sadhu-Sadhvi profile to get started</p>
+        <p className="page-subtitle">{t('ui.setupProfile')}</p>
       </div>
       {profiles.length === 0 && (
         <div className="card text-center py-16 max-w-lg mx-auto">
           <div className="text-5xl mb-4">🕉️</div>
-          <h2 className="text-lg font-semibold text-navy-800 mb-2">Create your profile</h2>
+          <h2 className="text-lg font-semibold text-navy-800 mb-2">{t('ui.createProfile')}</h2>
           <p className="text-sm text-gray-500 mb-6">
             {/* "Maharaj"/"Mataji" are honorifics for a Muni/Aryika specifically —
                 they do not cover Kshullaks, Ailaks or Sadhvis, so they must not be
@@ -53,7 +55,7 @@ export default function DashboardPage() {
             Register your Sadhu-Sadhvi profile. It becomes public to devotees once the Super Admin verifies it.
             You can later invite family or shishyas by their mobile number to help manage it.
           </p>
-          <Link to="/profiles/new" className="btn-primary">Register Profile</Link>
+          <Link to="/profiles/new" className="btn-primary">{t('ui.registerProfile')}</Link>
         </div>
       )}
     </div>

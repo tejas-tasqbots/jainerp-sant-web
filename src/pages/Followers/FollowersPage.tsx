@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import { Search, Users } from 'lucide-react';
 import api from '../../lib/api';
@@ -10,6 +11,7 @@ function formatDate(d: string) {
 }
 
 export default function FollowersPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   const [followers, setFollowers] = useState<Follower[]>([]);
   const [count, setCount] = useState<number | null>(null);
@@ -42,7 +44,7 @@ export default function FollowersPage() {
   return (
     <div>
       <PageHeader
-        title="Followers"
+        title={t('ui.followers')}
         subtitle={
           count === null
             ? undefined
@@ -56,7 +58,7 @@ export default function FollowersPage() {
       ) : followers.length === 0 ? (
         <EmptyState
           icon={Users}
-          title="No followers yet"
+          title={t('ui.noFollowers')}
           hint="Devotees who follow this profile in the JainERP devotee app will appear here, with the date they started following."
         />
       ) : (
@@ -66,16 +68,16 @@ export default function FollowersPage() {
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 className="form-input pl-9"
-                placeholder="Search followers by name or mobile"
+                placeholder={t('ui.searchFollowersPh')}
                 value={q}
                 onChange={e => setQ(e.target.value)}
-                aria-label="Search followers"
+                aria-label={t('ui.searchFollowers')}
               />
             </div>
           )}
 
           {shown.length === 0 ? (
-            <EmptyState icon={Search} title="No matches" hint={`Nothing matched “${q}”.`} />
+            <EmptyState icon={Search} title={t('ui.noMatches')} hint={`Nothing matched “${q}”.`} />
           ) : (
             <ul className="card divide-y divide-slate-100 p-0 overflow-hidden">
               {shown.map(f => (

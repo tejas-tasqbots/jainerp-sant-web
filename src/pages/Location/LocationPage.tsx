@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
@@ -12,6 +13,7 @@ function formatDate(d?: string) {
 }
 
 export default function LocationPage() {
+  const { t } = useTranslation()
   const { id } = useParams<{ id: string }>();
   const [history, setHistory] = useState<Location[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,12 +92,12 @@ export default function LocationPage() {
 
   return (
     <div>
-      <PageHeader title="Update Location" subtitle="Setting a new location notifies all followers" />
+      <PageHeader title={t('ui.updateLocation')} subtitle={t('ui.notifiesFollowers')} />
 
       {/* Proposals from mandirs awaiting approval */}
       {proposals.length > 0 && (
         <div className="card mb-6 border-2 border-amber-200 bg-amber-50/50">
-          <h2 className="font-semibold text-navy-800 mb-1">Location updates proposed by mandirs</h2>
+          <h2 className="font-semibold text-navy-800 mb-1">{t('ui.proposedByMandirs')}</h2>
           <p className="text-xs text-gray-500 mb-4">A mandir has reported a location for you. Approve to make it your current location, or reject.</p>
           <div className="space-y-3">
             {proposals.map((p) => (
@@ -115,9 +117,7 @@ export default function LocationPage() {
                   <button disabled={acting === p.id} onClick={() => decideProposal(p.id, 'approve')} className="btn-primary text-xs px-3 py-1.5">
                     {acting === p.id ? '…' : 'Approve'}
                   </button>
-                  <button disabled={acting === p.id} onClick={() => decideProposal(p.id, 'reject')} className="text-xs px-3 py-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50">
-                    Reject
-                  </button>
+                  <button disabled={acting === p.id} onClick={() => decideProposal(p.id, 'reject')} className="text-xs px-3 py-1.5 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50">{t('ui.reject')}</button>
                 </div>
               </div>
             ))}
@@ -126,31 +126,31 @@ export default function LocationPage() {
       )}
 
       <div className="card mb-6">
-        <h2 className="font-semibold text-navy-800 mb-4">Set Current Location</h2>
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.setCurrentLocation')}</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="locati-place-temple-name" className="label">Place / Temple Name *</label>
+            <label htmlFor="locati-place-temple-name" className="label">{t('ui.placeTempleReq')}</label>
             <input id="locati-place-temple-name" className="input" placeholder="Shantinath Jain Mandir" value={form.place}
               onChange={(e) => setForm((f) => ({ ...f, place: e.target.value }))} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="label">State *</label>
+              <label className="label">{t('ui.stateReq')}</label>
               <StateSelect value={form.state} onChange={(s) => setForm((f) => ({ ...f, state: s, city: '' }))} />
             </div>
             <div>
-              <label className="label">City *</label>
+              <label className="label">{t('ui.cityReq')}</label>
               <CitySelect state={form.state} value={form.city} onChange={(c) => setForm((f) => ({ ...f, city: c }))} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="locati-from-date" className="label">From Date</label>
+              <label htmlFor="locati-from-date" className="label">{t('ui.fromDate')}</label>
               <input id="locati-from-date" className="input" type="date" value={form.from_date}
                 onChange={(e) => setForm((f) => ({ ...f, from_date: e.target.value }))} />
             </div>
             <div>
-              <label htmlFor="locati-to-date" className="label">To Date</label>
+              <label htmlFor="locati-to-date" className="label">{t('ui.toDate')}</label>
               <input id="locati-to-date" className="input" type="date" value={form.to_date}
                 onChange={(e) => setForm((f) => ({ ...f, to_date: e.target.value }))} />
             </div>
@@ -158,10 +158,10 @@ export default function LocationPage() {
           <div className="flex items-center gap-2">
             <input type="checkbox" id="chaturmas" className="rounded" checked={form.chaturmas}
               onChange={(e) => setForm((f) => ({ ...f, chaturmas: e.target.checked }))} />
-            <label htmlFor="chaturmas" className="text-sm text-gray-700">Chaturmas Stay</label>
+            <label htmlFor="chaturmas" className="text-sm text-gray-700">{t('ui.chaturmasStay')}</label>
           </div>
           <div>
-            <label htmlFor="locati-notes" className="label">Notes</label>
+            <label htmlFor="locati-notes" className="label">{t('ui.notes')}</label>
             <textarea id="locati-notes" className="input" rows={2} value={form.notes}
               onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
           </div>
@@ -180,9 +180,9 @@ export default function LocationPage() {
 
       {/* History */}
       <div className="card">
-        <h2 className="font-semibold text-navy-800 mb-4">Location History</h2>
-        {loading && <p className="text-sm text-gray-500">Loading…</p>}
-        {history.length === 0 && !loading && <p className="text-sm text-gray-500">No location history yet</p>}
+        <h2 className="font-semibold text-navy-800 mb-4">{t('ui.locationHistory')}</h2>
+        {loading && <p className="text-sm text-gray-500">{t('ui.loading')}</p>}
+        {history.length === 0 && !loading && <p className="text-sm text-gray-500">{t('ui.noLocationHistory')}</p>}
         <div className="space-y-3">
           {history.map((loc) => (
             <div key={loc.id} className={`flex items-start gap-3 p-3 rounded-lg ${loc.is_current ? 'bg-navy-50 border border-navy-200' : 'bg-gray-50'}`}>
@@ -193,9 +193,9 @@ export default function LocationPage() {
                 {(loc.from_date || loc.to_date) && (
                   <p className="text-xs text-gray-400">{formatDate(loc.from_date)} {loc.to_date && `→ ${formatDate(loc.to_date)}`}</p>
                 )}
-                {loc.chaturmas && <span className="badge-accent mt-1">Chaturmas</span>}
+                {loc.chaturmas && <span className="badge-accent mt-1">{t('ui.chaturmas')}</span>}
               </div>
-              {loc.is_current && <span className="ml-auto badge-navy text-xs">Current</span>}
+              {loc.is_current && <span className="ml-auto badge-navy text-xs">{t('ui.current')}</span>}
             </div>
           ))}
         </div>

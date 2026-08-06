@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next'
 import { Outlet, useLocation } from 'react-router-dom';
 import { Menu, X } from 'lucide-react';
 import Sidebar from './Sidebar';
@@ -10,6 +11,7 @@ import Sidebar from './Sidebar';
  * the main column drops its left margin.
  */
 export default function Layout() {
+  const { t } = useTranslation()
   const [navOpen, setNavOpen] = useState(false);
   const location = useLocation();
 
@@ -25,7 +27,7 @@ export default function Layout() {
       {navOpen && (
         <button
           type="button"
-          aria-label="Close menu"
+          aria-label={t('ui.closeMenu')}
           onClick={() => setNavOpen(false)}
           className="fixed inset-0 z-30 bg-black/40 lg:hidden"
         />
