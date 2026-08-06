@@ -14,7 +14,9 @@
     "verify": "Verify & Sign In",
     "verifying": "Verifying…",
     "invalidMobile": "Enter a valid mobile number",
-    "repHint": "Enter the mobile number registered as a Sadhu-Sadhvi representative"
+    "repHint": "Enter the mobile number registered as a Sadhu-Sadhvi representative",
+    "portalName": "Sadhu-Sadhvi Portal",
+    "enterOtp": "Enter OTP"
   },
   "common": {
     "language": "Language"

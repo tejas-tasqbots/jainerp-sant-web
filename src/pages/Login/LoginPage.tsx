@@ -65,7 +65,12 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-slate-100 p-4">
       <div className="w-full max-w-sm">
         <div className="bg-white rounded-2xl shadow-2xl p-8 relative">
-          <div className="absolute right-4 top-4"><LanguageSwitcher /></div>
+          {/* The switcher sits in its own row rather than floating over the
+              header. It used to be absolutely positioned on top of the logo and
+              hero, so opening it covered the branding — the menu was always
+              clickable, it just landed on top of the artwork. Giving it a row of
+              its own makes all three portal logins read the same way. */}
+          <div className="flex justify-end -mt-2 mb-1 relative z-50"><LanguageSwitcher /></div>
           {/* Header — identical treatment to the Mandir Admin login. */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 rounded-2xl bg-brand-red flex items-center justify-center mx-auto mb-4">
@@ -74,7 +79,7 @@ export default function LoginPage() {
             <h1 className="text-2xl font-bold tracking-tight">
               <span className="text-navy-900">Jain</span><span className="text-brand-red">ERP</span>
             </h1>
-            <p className="text-slate-500 text-sm mt-1">Sadhu-Sadhvi Portal</p>
+            <p className="text-slate-500 text-sm mt-1">{t('login.portalName')}</p>
           </div>
           {step === 'mobile' ? (
             <form onSubmit={sendOtp} className="space-y-4">
@@ -100,7 +105,7 @@ export default function LoginPage() {
           ) : (
             <form onSubmit={verifyOtp} className="space-y-4">
               <div>
-                <label className="label">Enter OTP</label>
+                <label className="label">{t('login.enterOtp')}</label>
                 <input
                   className="input text-center text-xl tracking-widest"
                   type="text"
