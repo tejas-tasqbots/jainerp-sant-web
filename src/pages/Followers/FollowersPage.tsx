@@ -67,7 +67,7 @@ export default function FollowersPage() {
             <div className="relative mb-3">
               <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
-                className="form-input pl-9"
+                className="input pl-9"
                 placeholder={t('ui.searchFollowersPh')}
                 value={q}
                 onChange={e => setQ(e.target.value)}
