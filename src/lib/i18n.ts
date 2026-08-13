@@ -3,8 +3,10 @@ import { initReactI18next } from 'react-i18next'
 import en from '../locales/en/common.json'
 import hi from '../locales/hi/common.json'
 import mr from '../locales/mr/common.json'
+import gu from '../locales/gu/common.json'
+import kn from '../locales/kn/common.json'
 
-export type Lang = 'en' | 'hi' | 'mr'
+export type Lang = 'en' | 'hi' | 'mr' | 'gu' | 'kn'
 
 const STORAGE_KEY = 'sant_lang'
 // Pre-rename key (sant rename, 2026-08-03). Read once so an existing rep keeps
@@ -12,7 +14,7 @@ const STORAGE_KEY = 'sant_lang'
 const LEGACY_STORAGE_KEY = 'maharaj_lang'
 
 function isLang(v: unknown): v is Lang {
-  return v === 'en' || v === 'hi' || v === 'mr'
+  return v === 'en' || v === 'hi' || v === 'mr' || v === 'gu' || v === 'kn'
 }
 
 function savedLang(): Lang {
@@ -36,6 +38,8 @@ i18n.use(initReactI18next).init({
     en: { common: en },
     hi: { common: hi },
     mr: { common: mr },
+    gu: { common: gu },
+    kn: { common: kn },
   },
   lng: initial,
   fallbackLng: 'en',
@@ -57,6 +61,11 @@ export const LANGS: { code: Lang; label: string }[] = [
   { code: 'en', label: 'English' },
   { code: 'hi', label: 'हिंदी' },
   { code: 'mr', label: 'मराठी' },
+  // Gujarati and Kannada carry the largest Jain populations after Hindi and
+  // Marathi — Gujarat for the Shwetambar community, Karnataka for the
+  // Digambar heartland.
+  { code: 'gu', label: 'ગુજરાતી' },
+  { code: 'kn', label: 'ಕನ್ನಡ' },
 ]
 
 export default i18n
