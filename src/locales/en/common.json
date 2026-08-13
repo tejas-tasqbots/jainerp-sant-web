@@ -1,10 +1,12 @@
 {
+  "brand": {
+    "portal": "Sant"
+  },
   "nav": {
     "dashboard": "Dashboard",
     "myProfiles": "My Profiles",
     "settings": "Settings",
     "account": "Account",
-    "portal": "Sadhu-Sadhvi Portal",
     "signOut": "Sign out"
   },
   "login": {
@@ -15,7 +17,6 @@
     "verifying": "Verifying…",
     "invalidMobile": "Enter a valid mobile number",
     "repHint": "Enter the mobile number registered as a Sadhu-Sadhvi representative",
-    "portalName": "Sadhu-Sadhvi Portal",
     "enterOtp": "Enter OTP"
   },
   "common": {
