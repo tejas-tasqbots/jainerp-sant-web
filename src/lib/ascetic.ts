@@ -22,6 +22,39 @@ export function asceticTitle(type?: string | null): string {
   return ASCETIC_TYPES.find((t) => t.value === type)?.title ?? type;
 }
 
+/**
+ * Posts (pad) an ascetic may hold — migration 039.
+ *
+ * A POST, not a rank: an Acharya is a Muni who leads a sangh and does not stop
+ * being a Muni, which is why this is separate from ASCETIC_TYPES. 'none' is a
+ * real answer (most ascetics hold no post), not a missing one.
+ */
+export const PADS = [
+  { value: 'none', label: '—' },
+  { value: 'acharya', label: 'Acharya' },
+  { value: 'elacharya', label: 'Elacharya' },
+  { value: 'upadhyaya', label: 'Upadhyaya' },
+  { value: 'ganini', label: 'Ganini' },
+] as const;
+
+export function padLabel(pad?: string | null): string {
+  if (!pad || pad === 'none') return '';
+  return PADS.find((p) => p.value === pad)?.label ?? pad;
+}
+
+/**
+ * Which posts a given rank may hold. Ganini pairs only with an Aryika ("Ganini
+ * Aryika"); the other three are held by male ascetics. The API enforces this
+ * too (PAD_TYPE_MISMATCH) — filtering the picker means the rep never has to
+ * discover the rule by being rejected.
+ */
+export function padsForType(type?: string | null): readonly { value: string; label: string }[] {
+  if (type === 'aryika') return PADS.filter((p) => p.value === 'none' || p.value === 'ganini');
+  if (type === 'muni' || type === 'ailak') return PADS.filter((p) => p.value !== 'ganini');
+  // Kshullak/Kshullika hold none of these posts.
+  return PADS.filter((p) => p.value === 'none');
+}
+
 export const SECTS = [
   { value: 'digambar', label: 'Digambar', subSects: ['Terapanth', 'Bisapanth', 'Taran Panth'] },
   { value: 'shwetambar', label: 'Shwetambar', subSects: ['Murtipujak', 'Sthanakvasi', 'Terapanth'] },

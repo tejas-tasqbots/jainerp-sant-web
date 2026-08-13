@@ -3,6 +3,7 @@ import Layout from './components/Layout/Layout';
 import { useAuthStore } from './store/authStore';
 import BroadcastPage from './pages/Broadcast/BroadcastPage';
 import DashboardPage from './pages/Dashboard/DashboardPage';
+import EventsPage from './pages/Events/EventsPage';
 import FollowersPage from './pages/Followers/FollowersPage';
 import LoginPage from './pages/Login/LoginPage';
 import LocationPage from './pages/Location/LocationPage';
@@ -33,6 +34,7 @@ export default function App() {
         <Route path="profiles/:id/location" element={<LocationPage />} />
         <Route path="profiles/:id/vihar" element={<ViharPage />} />
         <Route path="profiles/:id/requirements" element={<RequirementsPage />} />
+        <Route path="profiles/:id/events" element={<EventsPage />} />
         <Route path="profiles/:id/broadcast" element={<BroadcastPage />} />
         <Route path="profiles/:id/followers" element={<FollowersPage />} />
         <Route path="settings" element={<SettingsPage />} />

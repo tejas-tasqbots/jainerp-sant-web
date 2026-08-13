@@ -26,6 +26,23 @@ export interface MaharajProfile {
   type: 'muni' | 'aryika' | 'kshullak' | 'kshullika' | 'ailak';
   /** Rendered honorific from the API — prefer this over mapping locally. */
   type_display?: string;
+  /**
+   * POST held (migration 039), distinct from the rank above: an Acharya is
+   * still a Muni. 'none' is a real answer, not a missing one.
+   */
+  pad?: 'acharya' | 'elacharya' | 'upadhyaya' | 'ganini' | 'none';
+  /** "Acharya", "Ganini", … Empty string when the post is 'none'. */
+  pad_display?: string;
+  /**
+   * Anniversary dates (migration 039). Nullable, and `null` clears the field on
+   * save — `diksha_year` stays authoritative when only the year is known.
+   */
+  birth_date?: string | null;
+  diksha_date?: string | null;
+  /** Set once the ascetic has attained samadhi; the profile becomes historical. */
+  samadhi_date?: string | null;
+  /** The observed tithi in words — observance follows the tithi, not the date. */
+  tithi_note?: string | null;
   /** Community (Oswal, Porwal…), NOT the sect. */
   samuday: string;
   /** Sampradaya, and the panth/gaccha within it. */
@@ -57,6 +74,12 @@ export interface Location {
   from_date?: string;
   to_date?: string;
   chaturmas?: boolean;
+  /**
+   * Varshayog year (migration 039), derived from `from_date` when the chaturmas
+   * flag is set. It is what the devotee-facing chaturmas directory groups by —
+   * a flagged row without one cannot appear there at all.
+   */
+  chaturmas_year?: number | null;
   notes?: string;
   lat?: number;
   lng?: number;
@@ -101,4 +124,37 @@ export interface Follower {
   name?: string;
   mobile: string;
   followed_at: string;
+}
+
+/**
+ * An event this Sadhu-Sadhvi is holding (migration 039).
+ *
+ * Anniversaries (diksha/janma jayanti, punya tithi) are NOT events: they are
+ * derived from the profile's own dates at read time, so a corrected date never
+ * leaves a stale row behind. Only things with their own facts live here.
+ */
+export interface SantEvent {
+  id: string;
+  title: string;
+  type: 'pravachan' | 'panchkalyanak' | 'pratishtha' | 'diksha'
+      | 'vidhan' | 'shibir' | 'chaturmas_sthapana' | 'other';
+  /** Rendered label from the API — prefer it over mapping locally. */
+  type_display?: string;
+  description?: string | null;
+  place?: string | null;
+  city?: string | null;
+  state?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+  starts_on: string;
+  ends_on?: string | null;
+  /** Free text: programmes start "after aahar" as often as at a clock time. */
+  starts_at_time?: string | null;
+  tithi_note?: string | null;
+  visibility?: 'public' | 'followers_and_temples' | 'followers';
+  /** Cancel rather than delete once announced — devotees may have travelled. */
+  status: 'scheduled' | 'cancelled' | 'completed';
+  tenant_id?: string | null;
+  tenant_name?: string | null;
+  created_at?: string;
 }

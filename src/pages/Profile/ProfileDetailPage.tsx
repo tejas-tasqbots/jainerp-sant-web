@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { ASCETIC_TYPES, asceticTitle, SECTS, subSectsFor } from '../../lib/ascetic'
+import { ASCETIC_TYPES, asceticTitle, padsForType, SECTS, subSectsFor } from '../../lib/ascetic'
 import { Link, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { compressImage } from '../../lib/imageCompress';
 import { RepsManager } from '../../components/RepsManager';
 import { PublicProfileEditor } from '../../components/PublicProfileEditor';
-import { ClipboardList, MapPin, Megaphone, Route, Users } from 'lucide-react';
+import { CalendarDays, ClipboardList, MapPin, Megaphone, Route, Users } from 'lucide-react';
 import { ErrorPanel, Loading, PageHeader } from '../../components/kit';
 import type { MaharajProfile } from '../../types';
 
@@ -27,11 +27,21 @@ export default function ProfileDetailPage() {
     api.get(`/sant/${id}`)
       .then((data: any) => {
         setProfile(data);
-        setForm({ name: data.name, type: data.type, samuday: data.samuday,
+        // Every editable field must be seeded here. A field rendered by the
+        // form but missing from this list opens blank even when the profile
+        // holds a value, which reads to the rep as data loss (DEF-SANT-03).
+        setForm({ name: data.name, type: data.type, pad: data.pad ?? 'none',
+          samuday: data.samuday,
           sect: data.sect, sub_sect: data.sub_sect,
           diksha_year: data.diksha_year, guru_name: data.guru_name, bio: data.bio,
           about: data.about, diksha_place: data.diksha_place, education: data.education,
-          honours: data.honours, lineage: data.lineage });
+          honours: data.honours, lineage: data.lineage,
+          // <input type="date"> needs a bare YYYY-MM-DD; Postgres may send a
+          // full timestamp, which the control silently rejects and shows empty.
+          birth_date: data.birth_date?.slice(0, 10) ?? null,
+          diksha_date: data.diksha_date?.slice(0, 10) ?? null,
+          samadhi_date: data.samadhi_date?.slice(0, 10) ?? null,
+          tithi_note: data.tithi_note });
       })
       .catch((e) => setError(apiError(e)))
       .finally(() => setLoading(false));
@@ -169,6 +179,7 @@ export default function ProfileDetailPage() {
           { label: 'Update Location', hint: 'Where you are staying now', to: `/profiles/${id}/location`, Icon: MapPin },
           { label: 'Vihar Plan', hint: 'Places you are travelling to', to: `/profiles/${id}/vihar`, Icon: Route },
           { label: 'Requirements', hint: 'Aahar, medical and other needs', to: `/profiles/${id}/requirements`, Icon: ClipboardList },
+          { label: 'Events', hint: 'Pravachan, panchkalyanak and other programmes', to: `/profiles/${id}/events`, Icon: CalendarDays },
           { label: 'Broadcast', hint: 'Send a message to followers', to: `/profiles/${id}/broadcast`, Icon: Megaphone },
           { label: 'Followers', hint: `${profile.followers_count ?? 0} following you`, to: `/profiles/${id}/followers`, Icon: Users },
         ].map(({ label, hint, to, Icon }) => (
@@ -200,7 +211,15 @@ export default function ProfileDetailPage() {
               </div>
               <div>
                 <label htmlFor="profil-type" className="label">Type</label>
-                <select id="profil-type" className="input" value={form.type ?? 'muni'} onChange={(e) => setForm((f) => ({ ...f, type: e.target.value as any }))}>
+                {/* Changing the rank clears a post the new rank cannot hold —
+                    otherwise the form silently carries e.g. Ganini onto a Muni
+                    and the save 400s with PAD_TYPE_MISMATCH on an edit the rep
+                    never made. */}
+                <select id="profil-type" className="input" value={form.type ?? 'muni'} onChange={(e) => setForm((f) => {
+                  const type = e.target.value as MaharajProfile['type'];
+                  const allowed = padsForType(type).some((p) => p.value === (f.pad ?? 'none'));
+                  return { ...f, type, pad: allowed ? f.pad : 'none' };
+                })}>
                   {ASCETIC_TYPES.map((t) => (
                     <option key={t.value} value={t.value}>{t.title} · {t.rank}</option>
                   ))}
@@ -212,9 +231,54 @@ export default function ProfileDetailPage() {
                 <label htmlFor="profil-samuday" className="label">{t('ui.samuday')}</label>
                 <input id="profil-samuday" className="input" value={form.samuday ?? ''} onChange={(e) => setForm((f) => ({ ...f, samuday: e.target.value }))} />
               </div>
+              {/* Post held (migration 039) — separate from the rank above, and
+                  the reason the directory can answer "every Acharya". The list
+                  is narrowed to the posts THIS rank may hold, so the rep never
+                  meets the API's PAD_TYPE_MISMATCH by guessing. */}
+              <div>
+                <label htmlFor="profil-pad" className="label">{t('ui.pad')}</label>
+                <select id="profil-pad" className="input" value={form.pad ?? 'none'}
+                  onChange={(e) => setForm((f) => ({ ...f, pad: e.target.value as MaharajProfile['pad'] }))}>
+                  {padsForType(form.type).map((p) => (
+                    <option key={p.value} value={p.value}>{p.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            {/* Anniversary dates (migration 039). `diksha_year` stays the
+                authoritative field when only the year is known — most
+                historical records have no more than that, and inventing a day
+                to fill a date would be fabricating record. */}
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <label htmlFor="profil-diksha-year" className="label">{t('ui.dikshaYear')}</label>
                 <input id="profil-diksha-year" className="input" type="number" value={form.diksha_year ?? ''} onChange={(e) => setForm((f) => ({ ...f, diksha_year: parseInt(e.target.value) || undefined }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-birth-date" className="label">{t('ui.birthDate')}</label>
+                <input id="profil-birth-date" className="input" type="date" value={form.birth_date ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, birth_date: e.target.value || null }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-diksha-date" className="label">{t('ui.dikshaDate')}</label>
+                <input id="profil-diksha-date" className="input" type="date" value={form.diksha_date ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, diksha_date: e.target.value || null }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profil-tithi-note" className="label">{t('ui.tithiNote')}</label>
+                {/* Free text: observance follows the tithi, not the Gregorian
+                    anniversary, and tithi→date varies by panchang and region. */}
+                <input id="profil-tithi-note" className="input" value={form.tithi_note ?? ''}
+                  placeholder={t('ui.tithiNotePh')}
+                  onChange={(e) => setForm((f) => ({ ...f, tithi_note: e.target.value }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-samadhi-date" className="label">{t('ui.samadhiDate')}</label>
+                <input id="profil-samadhi-date" className="input" type="date" value={form.samadhi_date ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, samadhi_date: e.target.value || null }))} />
+                <p className="mt-1 text-[11px] text-slate-400">{t('ui.samadhiHint')}</p>
               </div>
             </div>
             {/* Sampradaya is editable here, not only at registration: a rep who
