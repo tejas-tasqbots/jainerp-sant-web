@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next'
-import { ASCETIC_TYPES, asceticTitle, padsForType, SECTS, subSectsFor } from '../../lib/ascetic'
+import { almsLabel, ASCETIC_TYPES, asceticTitle, padsForType, SECTS, subSectsFor } from '../../lib/ascetic'
 import { Link, useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { compressImage } from '../../lib/imageCompress';
@@ -178,7 +178,11 @@ export default function ProfileDetailPage() {
         {[
           { label: 'Update Location', hint: 'Where you are staying now', to: `/profiles/${id}/location`, Icon: MapPin },
           { label: 'Vihar Plan', hint: 'Places you are travelling to', to: `/profiles/${id}/vihar`, Icon: Route },
-          { label: 'Requirements', hint: 'Aahar, medical and other needs', to: `/profiles/${id}/requirements`, Icon: ClipboardList },
+          // The alms word follows the profile's sect, as it does on the
+          // Requirements page itself and in the app: this tile was hardcoded to
+          // the Digambara "Aahar", so a Shwetambar Sadhvi's own dashboard used
+          // the other tradition's term for the round she walks.
+          { label: 'Requirements', hint: `${almsLabel('gochari', profile.sect)}, medical and other needs`, to: `/profiles/${id}/requirements`, Icon: ClipboardList },
           { label: 'Events', hint: 'Pravachan, panchkalyanak and other programmes', to: `/profiles/${id}/events`, Icon: CalendarDays },
           { label: 'Broadcast', hint: 'Send a message to followers', to: `/profiles/${id}/broadcast`, Icon: Megaphone },
           { label: 'Followers', hint: `${profile.followers_count ?? 0} following you`, to: `/profiles/${id}/followers`, Icon: Users },
