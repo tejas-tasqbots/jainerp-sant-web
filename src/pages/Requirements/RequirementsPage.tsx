@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
-import { PageHeader } from '../../components/kit';
+import { PageHeader, useToast } from '../../components/kit';
 import { almsLabel } from '../../lib/ascetic';
 import type { Requirement } from '../../types';
 
@@ -35,6 +35,7 @@ export default function RequirementsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const toast = useToast();
   const [notice, setNotice] = useState('');
   const [form, setForm] = useState({
     type: 'chuka', description: '', needed_on: '', city: '',
@@ -74,6 +75,9 @@ export default function RequirementsPage() {
       };
       setItems((prev) => [newItem, ...prev]);
       if (added.notified > 0) setNotice(`Requirement posted — ${added.notified} follower(s) notified`);
+      toast.show(added.notified > 0
+        ? `Requirement posted — ${added.notified} follower(s) notified.`
+        : 'Requirement posted.');
       setForm({ type: 'chuka', description: '', needed_on: '', city: '', visibility: 'followers_and_temples' });
     } catch (e) {
       setError(apiError(e));
@@ -86,8 +90,9 @@ export default function RequirementsPage() {
     try {
       await api.patch(`/sant/${id}/requirements/${reqId}`, { status });
       setItems((prev) => prev.map((r) => r.id === reqId ? { ...r, status: status as any } : r));
+      toast.show(`Marked as ${status}.`);
     } catch (e) {
-      alert(apiError(e));
+      toast.show(apiError(e), 'bad');
     }
   }
 
@@ -96,13 +101,15 @@ export default function RequirementsPage() {
     try {
       await api.delete(`/sant/${id}/requirements/${reqId}`);
       setItems((prev) => prev.filter((r) => r.id !== reqId));
+      toast.show('Requirement deleted.');
     } catch (e) {
-      alert(apiError(e));
+      toast.show(apiError(e), 'bad');
     }
   }
 
   return (
     <div>
+      {toast.node}
       <PageHeader title={t('ui.requirements')} subtitle={t('ui.requirementsHelp')} />
 
       <div className="card mb-6">

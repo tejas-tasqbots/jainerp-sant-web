@@ -1,3 +1,5 @@
+import { useEffect, useRef, useState } from 'react'
+import { CheckCircle2, XCircle } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 
 /**
@@ -113,4 +115,47 @@ export function Pill({
       {children}
     </span>
   )
+}
+
+/**
+ * A short confirmation that an action worked.
+ *
+ * Every form in this portal reported failures (a red panel, an alert) and said
+ * nothing whatsoever on success — a rep who edited their profile or added an
+ * event was left to guess whether it had saved. Errors were loud, success was
+ * silent, so the portal felt broken even when it wasn't.
+ *
+ * Fixed to the viewport rather than inline: several of these forms are long
+ * enough that a banner at the top would appear off-screen, which is the same
+ * as not showing it at all.
+ */
+export function useToast() {
+  const [toast, setToast] = useState<{ text: string; tone: 'ok' | 'bad' } | null>(null)
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  useEffect(() => () => { if (timer.current) clearTimeout(timer.current) }, [])
+
+  function show(text: string, tone: 'ok' | 'bad' = 'ok') {
+    setToast({ text, tone })
+    if (timer.current) clearTimeout(timer.current)
+    // A failure gets longer on screen because it usually names a reason the
+    // reader has to act on.
+    timer.current = setTimeout(() => setToast(null), tone === 'bad' ? 7000 : 4000)
+  }
+
+  const node = toast ? (
+    <div
+      role="status"
+      aria-live="polite"
+      className={`fixed top-4 right-4 z-50 max-w-sm flex items-start gap-2 rounded-xl px-4 py-3 text-sm shadow-lg border ${
+        toast.tone === 'ok'
+          ? 'bg-brand-green-light border-brand-green text-brand-green-dark'
+          : 'bg-danger-bg border-danger text-danger'
+      }`}
+    >
+      {toast.tone === 'ok' ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <XCircle size={16} className="mt-0.5 shrink-0" />}
+      <span>{toast.text}</span>
+    </div>
+  ) : null
+
+  return { show, node }
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
-import { PageHeader } from '../../components/kit';
+import { PageHeader, useToast } from '../../components/kit';
 import type { ViharEntry } from '../../types';
 
 function formatDate(d?: string) {
@@ -17,6 +17,7 @@ export default function ViharPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
+  const toast = useToast();
   const [form, setForm] = useState({ expected_from: '', expected_to: '', place: '', city: '', state: '', notes: '' });
 
   useEffect(() => {
@@ -44,6 +45,7 @@ export default function ViharPage() {
       setEntries((prev) => [...prev, newEntry].sort((a, b) =>
         a.expected_from.localeCompare(b.expected_from)));
       setForm({ expected_from: '', expected_to: '', place: '', city: '', state: '', notes: '' });
+      toast.show('Vihar entry added.');
     } catch (e) {
       setError(apiError(e));
     } finally {
@@ -56,13 +58,15 @@ export default function ViharPage() {
     try {
       await api.delete(`/sant/${id}/vihar-plan/${entryId}`);
       setEntries((prev) => prev.filter((e) => e.id !== entryId));
+      toast.show('Vihar entry deleted.');
     } catch (e) {
-      alert(apiError(e));
+      toast.show(apiError(e), 'bad');
     }
   }
 
   return (
     <div>
+      {toast.node}
       <PageHeader title={t('ui.viharPlan')} subtitle={t('ui.viharHelp')} />
 
       <div className="card mb-6">

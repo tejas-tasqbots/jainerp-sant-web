@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { CalendarDays, Trash2, XCircle } from 'lucide-react';
 import api, { apiError } from '../../lib/api';
-import { EmptyState, ErrorPanel, PageHeader, SkeletonList } from '../../components/kit';
+import { EmptyState, ErrorPanel, PageHeader, SkeletonList, useToast } from '../../components/kit';
 import type { SantEvent } from '../../types';
 
 /**
@@ -45,6 +45,7 @@ export default function EventsPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [form, setForm] = useState({ ...EMPTY });
+  const toast = useToast();
 
   useEffect(() => {
     if (!id) return;
@@ -75,6 +76,7 @@ export default function EventsPage() {
       }) as SantEvent;
       setEvents((prev) => [...prev, created].sort((a, b) => a.starts_on.localeCompare(b.starts_on)));
       setForm({ ...EMPTY });
+      toast.show('Event added — followers have been notified.');
     } catch (err) {
       setError(apiError(err));
     } finally {
@@ -91,8 +93,9 @@ export default function EventsPage() {
     try {
       const updated = await api.patch(`/sant/${id}/events/${eventId}`, { status: 'cancelled' }) as SantEvent;
       setEvents((prev) => prev.map((e) => (e.id === eventId ? updated : e)));
+      toast.show('Event marked as cancelled.');
     } catch (err) {
-      alert(apiError(err));
+      toast.show(apiError(err), 'bad');
     }
   }
 
@@ -101,13 +104,15 @@ export default function EventsPage() {
     try {
       await api.delete(`/sant/${id}/events/${eventId}`);
       setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      toast.show('Event deleted.');
     } catch (err) {
-      alert(apiError(err));
+      toast.show(apiError(err), 'bad');
     }
   }
 
   return (
     <div>
+      {toast.node}
       <PageHeader title={t('ui.eventsTitle')} subtitle={t('ui.eventsHelp')} />
 
       <div className="card mb-6">

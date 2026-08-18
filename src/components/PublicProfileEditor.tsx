@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { BookOpen, ImagePlus, Link2, Plus, Trash2, X } from 'lucide-react';
 import api, { apiError } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
+import { useToast } from './kit';
 
 interface ProfileLink { id: string; kind: string; label?: string | null; url: string }
 interface Publication {
@@ -51,6 +52,7 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
   const [cover, setCover] = useState<{ dataUri: string; name: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
+  const toast = useToast();
 
   useEffect(() => { void load(); }, [profileId]);
 
@@ -78,11 +80,12 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
       });
       setNewLink({ kind: 'website', label: '', url: '' });
       await load();
+      toast.show('Link added.');
     } catch (e) { setError(apiError(e)); } finally { setBusy(false); }
   }
 
   async function removeLink(id: string) {
-    try { await api.delete(`/sant/${profileId}/links/${id}`); await load(); }
+    try { await api.delete(`/sant/${profileId}/links/${id}`); await load(); toast.show('Link removed.'); }
     catch (e) { setError(apiError(e)); }
   }
 
@@ -114,16 +117,18 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
       setNewPub({ title: '', kind: 'book', language: '', year: '', publisher: '', description: '', url: '' });
       setCover(null);
       await load();
+      toast.show('Publication added.');
     } catch (e) { setError(apiError(e)); } finally { setBusy(false); }
   }
 
   async function removePub(id: string) {
-    try { await api.delete(`/sant/${profileId}/publications/${id}`); await load(); }
+    try { await api.delete(`/sant/${profileId}/publications/${id}`); await load(); toast.show('Publication removed.'); }
     catch (e) { setError(apiError(e)); }
   }
 
   return (
     <div className="space-y-6">
+      {toast.node}
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">{error}</div>
       )}

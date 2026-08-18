@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
-import { PageHeader } from '../../components/kit';
+import { PageHeader, useToast } from '../../components/kit';
 import { LocationPicker } from '../../components/LocationPicker';
 import { StateSelect, CitySelect } from '../../components/GeoSelect';
 import type { Location } from '../../types';
@@ -20,6 +20,7 @@ export default function LocationPage() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const toast = useToast();
   const [form, setForm] = useState({
     place: '', city: '', state: '',
     from_date: '', to_date: '', chaturmas: false, notes: '',
@@ -81,7 +82,11 @@ export default function LocationPage() {
       const added = await api.put(`/sant/${id}/location`, payload) as any;
       const newLoc: import('../../types').Location = { ...added, is_current: true, created_at: new Date().toISOString() };
       setHistory((h) => [newLoc, ...h.map((l) => ({ ...l, is_current: false }))]);
+      // Both: the toast is what the rep actually notices (this form is long
+      // enough that the inline line sits below the fold on a phone), the inline
+      // line stays as the record of how many followers were told.
       setNotice(`Location updated — ${added.followers_notified ?? 0} follower(s) notified`);
+      toast.show(`Location updated — ${added.followers_notified ?? 0} follower(s) notified.`);
       setForm({ place: '', city: '', state: '', from_date: '', to_date: '', chaturmas: false, notes: '', lat: '', lng: '' });
     } catch (e) {
       setError(apiError(e));
@@ -92,6 +97,7 @@ export default function LocationPage() {
 
   return (
     <div>
+      {toast.node}
       <PageHeader title={t('ui.updateLocation')} subtitle={t('ui.notifiesFollowers')} />
 
       {/* Proposals from mandirs awaiting approval */}
@@ -171,7 +177,7 @@ export default function LocationPage() {
             onChange={(la, ln) => setForm((f) => ({ ...f, lat: String(la), lng: String(ln) }))}
           />
           {error && <p className="text-sm text-danger-500">{error}</p>}
-          {notice && <p className="text-sm text-cta-600">{notice}</p>}
+          {notice && <p className="text-sm text-brand-green-dark">{notice}</p>}
           <button type="submit" disabled={saving} className="btn-primary w-full py-2.5">
             {saving ? 'Updating…' : 'Update Location'}
           </button>

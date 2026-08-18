@@ -7,7 +7,7 @@ import { compressImage } from '../../lib/imageCompress';
 import { RepsManager } from '../../components/RepsManager';
 import { PublicProfileEditor } from '../../components/PublicProfileEditor';
 import { CalendarDays, ClipboardList, MapPin, Megaphone, Route, Users } from 'lucide-react';
-import { ErrorPanel, Loading, PageHeader } from '../../components/kit';
+import { ErrorPanel, Loading, PageHeader, useToast } from '../../components/kit';
 import type { MaharajProfile } from '../../types';
 
 export default function ProfileDetailPage() {
@@ -21,6 +21,7 @@ export default function ProfileDetailPage() {
   const [saving, setSaving] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const toast = useToast();
 
   useEffect(() => {
     if (!id) return;
@@ -61,8 +62,11 @@ export default function ProfileDetailPage() {
       });
       setProfile((p) => p ? { ...p, ...form } as MaharajProfile : p);
       setEditing(false);
+      toast.show('Profile saved.');
     } catch (e) {
-      alert(apiError(e));
+      // A toast, not an alert(): a browser dialog blocks the page and the rep
+      // has to dismiss it before they can see which field the message is about.
+      toast.show(apiError(e), 'bad');
     } finally {
       setSaving(false);
     }
@@ -79,8 +83,9 @@ export default function ProfileDetailPage() {
       const dataUri = await compressImage(file, { maxDim: 800, maxBytes: 150_000 });
       const res = await api.post(`/sant/${id}/photo`, { photo_base64: dataUri }) as any;
       setProfile((p) => p ? { ...p, photo_base64: res.photo_base64 } : p);
+      toast.show('Photo updated.');
     } catch (e) {
-      alert(apiError(e));
+      toast.show(apiError(e), 'bad');
     } finally {
       setPhotoUploading(false);
     }
@@ -92,8 +97,9 @@ export default function ProfileDetailPage() {
     try {
       await api.delete(`/sant/${id}/photo`);
       setProfile((p) => p ? { ...p, photo_base64: undefined, photo_url: undefined } : p);
+      toast.show('Photo removed.');
     } catch (e) {
-      alert(apiError(e));
+      toast.show(apiError(e), 'bad');
     } finally {
       setPhotoUploading(false);
     }
@@ -105,6 +111,7 @@ export default function ProfileDetailPage() {
 
   return (
     <div>
+      {toast.node}
       {/* The name lives in the hero below, so the page heading names the SCREEN
           instead of repeating it. */}
       <PageHeader
