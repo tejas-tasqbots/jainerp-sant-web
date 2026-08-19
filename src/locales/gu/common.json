@@ -7,7 +7,10 @@
     "myProfiles": "મારી પ્રોફાઇલ",
     "settings": "સેટિંગ્સ",
     "account": "ખાતું",
-    "signOut": "સાઇન આઉટ"
+    "signOut": "સાઇન આઉટ",
+    "actingFor": "આના વતી",
+    "allProfiles": "બધી પ્રોફાઇલ",
+    "addSant": "સાધુ-સાધ્વી ઉમેરો"
   },
   "login": {
     "mobileLabel": "મોબાઇલ નંબર",
@@ -175,7 +178,10 @@
     "cancelEvent": "કાર્યક્રમ રદ કરો",
     "cancelled": "રદ",
     "deleteEventConfirm": "આ કાર્યક્રમ કાઢી નાખવો? જાહેર થઈ ગયો હોય તો રદ કરવો વધુ યોગ્ય છે.",
-    "saving": "સાચવી રહ્યા છીએ…"
+    "saving": "સાચવી રહ્યા છીએ…",
+    "chooseProfile": "પ્રોફાઇલ પસંદ કરો",
+    "chooseProfileHelp": "તમે {{count}} સાધુ-સાધ્વીનું પ્રતિનિધિત્વ કરો છો. જેને સંભાળવી છે તે પસંદ કરો.",
+    "switchHint": "સાઇડબારની યાદીમાંથી તેમની વચ્ચે બદલો."
   },
   "eventType": {
     "pravachan": "પ્રવચન",

@@ -7,7 +7,10 @@
     "myProfiles": "My Profiles",
     "settings": "Settings",
     "account": "Account",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "actingFor": "Acting for",
+    "allProfiles": "All Profiles",
+    "addSant": "Add Sadhu-Sadhvi"
   },
   "login": {
     "mobileLabel": "Mobile Number",
@@ -175,7 +178,10 @@
     "cancelEvent": "Cancel event",
     "cancelled": "Cancelled",
     "deleteEventConfirm": "Delete this event? Prefer cancelling if it has already been announced.",
-    "saving": "Saving…"
+    "saving": "Saving…",
+    "chooseProfile": "Choose a profile",
+    "chooseProfileHelp": "You represent {{count}} Sadhu-Sadhvis. Pick the one you want to manage.",
+    "switchHint": "Switch between them from the list in the sidebar."
   },
   "eventType": {
     "pravachan": "Pravachan",

@@ -1,25 +1,25 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { ASCETIC_TYPES, SECTS, subSectsFor } from '../../lib/ascetic'
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
+import { useProfilesStore } from '../../store/profilesStore';
 
 export default function NewProfilePage() {
   const { t } = useTranslation()
   const navigate = useNavigate();
   const { setAuth, user, access_token, refresh_token } = useAuthStore();
+  const loadProfiles = useProfilesStore((s) => s.load);
   const [loading, setLoading] = useState(false);
 
-  // One profile per login — if this account already has one, send them to it.
-  useEffect(() => {
-    api.get('/sant/mine')
-      .then((data: any) => {
-        const list = Array.isArray(data) ? data : [];
-        if (list.length >= 1) navigate(`/profiles/${list[0].id}`, { replace: true });
-      })
-      .catch(() => {});
-  }, [navigate]);
+  /*
+   * This page used to bounce to the first existing profile whenever the account
+   * already had one ("one profile per login"). That is not the model: a rep
+   * represents as many Sadhu-Sadhvis as the sangh asks them to, and the bounce
+   * made registering the second one impossible from the web. The API has never
+   * limited it — `POST /sant` just adds another profile to this rep.
+   */
 
   const [error, setError] = useState('');
   const [form, setForm] = useState({
@@ -67,6 +67,9 @@ export default function NewProfilePage() {
           });
         } catch {}
       }
+      // The switcher reads this store, so a profile registered mid-session has
+      // to be pulled in or it won't appear in the sidebar until a reload.
+      await loadProfiles(true);
       navigate(`/profiles/${res.id}`);
     } catch (e) {
       setError(apiError(e));

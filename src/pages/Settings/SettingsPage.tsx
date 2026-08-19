@@ -4,10 +4,12 @@ import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { PageHeader } from '../../components/kit';
 import { useAuthStore } from '../../store/authStore';
+import { useProfilesStore } from '../../store/profilesStore';
 
 export default function SettingsPage() {
   const { t } = useTranslation()
   const { user, logout: storeLogout, setAuth, access_token, refresh_token, sant_ids } = useAuthStore();
+  const { profiles, reset: resetProfiles } = useProfilesStore();
   const navigate = useNavigate();
   const [name, setName] = useState(user?.name ?? '');
   const [saving, setSaving] = useState(false);
@@ -35,6 +37,7 @@ export default function SettingsPage() {
   async function handleLogout() {
     try { await api.post('/auth/logout'); } catch {}
     storeLogout();
+    resetProfiles();
     navigate('/login');
   }
 
@@ -65,9 +68,17 @@ export default function SettingsPage() {
       <div className="card mb-4">
         <h2 className="font-semibold text-navy-800 mb-2">{t('ui.account')}</h2>
         <p className="text-sm text-gray-500 mb-4">
+          {/* The live list, not `sant_ids`: that is a snapshot taken at login,
+              so a profile registered or shared with this rep mid-session made
+              this line disagree with the switcher standing next to it. */}
           You are logged in as a Sadhu-Sadhvi representative managing{' '}
-          <strong>{sant_ids.length}</strong> profile(s).
+          <strong>{profiles.length || sant_ids.length}</strong> profile(s).
         </p>
+        {profiles.length > 1 && (
+          <p className="text-sm text-gray-500 mb-4">
+            {t('ui.switchHint')}
+          </p>
+        )}
       </div>
 
       <div className="card border-red-100">
