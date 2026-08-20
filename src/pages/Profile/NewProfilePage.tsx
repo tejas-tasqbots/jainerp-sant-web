@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next'
 import { ASCETIC_TYPES, SECTS, subSectsFor } from '../../lib/ascetic'
-import { useNavigate } from 'react-router-dom';
-import api, { apiError } from '../../lib/api';
+import { Link, useNavigate } from 'react-router-dom';
+import api, { apiError, apiErrorBody } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { useProfilesStore } from '../../store/profilesStore';
 
@@ -17,11 +17,20 @@ export default function NewProfilePage() {
    * This page used to bounce to the first existing profile whenever the account
    * already had one ("one profile per login"). That is not the model: a rep
    * represents as many Sadhu-Sadhvis as the sangh asks them to, and the bounce
-   * made registering the second one impossible from the web. The API has never
-   * limited it — `POST /sant` just adds another profile to this rep.
+   * made registering the second one impossible from the web.
+   *
+   * The server enforced the same rule from its own side and answered the
+   * second `POST /sant` with 409 PROFILE_EXISTS, so removing the bounce alone
+   * only moved the dead end one screen later. Both halves are gone as of
+   * 2026-08-20; what the API still refuses is a double submit
+   * (DUPLICATE_PROFILE, same name within minutes) and an overlong queue of
+   * unverified profiles (TOO_MANY_PENDING_PROFILES) — neither of which is a
+   * limit on how many Sadhu-Sadhvi one login may represent.
    */
 
   const [error, setError] = useState('');
+  /** Set when the failure was a duplicate, so we can offer the existing one. */
+  const [duplicate, setDuplicate] = useState<{ id: string; name: string } | null>(null);
   const [form, setForm] = useState({
     name: '',
     type: 'muni',
@@ -37,6 +46,7 @@ export default function NewProfilePage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+    setDuplicate(null);
     setLoading(true);
     try {
       const langs = form.languages.split(',').map((l) => l.trim()).filter(Boolean);
@@ -73,6 +83,13 @@ export default function NewProfilePage() {
       navigate(`/profiles/${res.id}`);
     } catch (e) {
       setError(apiError(e));
+      // Almost always a double-submitted form. Telling them it is a duplicate
+      // without saying where the original went leaves them re-typing it; the
+      // link below turns the error into the thing they were trying to reach.
+      const { code, details } = apiErrorBody(e);
+      if (code === 'DUPLICATE_PROFILE' && details?.id) {
+        setDuplicate({ id: details.id, name: details.name ?? form.name });
+      }
     } finally {
       setLoading(false);
     }
@@ -154,7 +171,19 @@ export default function NewProfilePage() {
             <input id="newpro-languages-comma-separate" className="input" placeholder="gujarati, hindi, sanskrit" value={form.languages}
               onChange={(e) => setForm((f) => ({ ...f, languages: e.target.value }))} />
           </div>
-          {error && <p className="text-sm text-danger-500">{error}</p>}
+          {error && (
+            <div className="text-sm text-danger-500">
+              <p>{error}</p>
+              {duplicate && (
+                <Link
+                  to={`/profiles/${duplicate.id}`}
+                  className="mt-1 inline-block font-medium text-navy-800 underline hover:text-brand-red"
+                >
+                  Open {duplicate.name} →
+                </Link>
+              )}
+            </div>
+          )}
           <div className="flex gap-3 pt-2">
             <button type="submit" disabled={loading} className="btn-primary flex-1 py-2.5">
               {loading ? 'Submitting…' : 'Submit for Verification'}

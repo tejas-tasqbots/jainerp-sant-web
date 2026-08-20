@@ -43,6 +43,20 @@ api.interceptors.response.use(
   },
 );
 
+/**
+ * The server's error envelope, when there is one.
+ *
+ * `apiError` flattens a failure to a sentence, which is all a form needs to
+ * say what went wrong. Some failures carry an actionable `details` payload as
+ * well — DUPLICATE_PROFILE names the profile that is already there — and a
+ * screen that can act on it needs the code, not the prose, to decide whether
+ * to.
+ */
+export function apiErrorBody(err: unknown): { code?: string; message?: string; details?: any } {
+  if (axios.isAxiosError(err)) return err.response?.data?.error ?? {};
+  return {};
+}
+
 export function apiError(err: unknown): string {
   if (axios.isAxiosError(err)) {
     const d = err.response?.data;
