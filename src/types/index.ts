@@ -21,18 +21,37 @@ export interface MaharajProfile {
   honours?: string | null;
   lineage?: string | null;
   id: string;
+  /**
+   * The canonical display name. Kept as the value every reader falls back to;
+   * `name_en` / `name_hi` (migration 044) are the per-script ones.
+   *
+   * All three are **read-only in this portal** — only the Super Admin writes
+   * them. A rep corrects a spelling through a change request.
+   */
   name: string;
+  name_en?: string | null;
+  name_hi?: string | null;
   /** Canonical rank. The honorific ("Maharaj Ji") is `type_display`. */
-  type: 'muni' | 'aryika' | 'kshullak' | 'kshullika' | 'ailak';
+  type: 'muni' | 'aryika' | 'kshullak' | 'kshullika' | 'ailak' | 'sadhu' | 'sadhvi';
   /** Rendered honorific from the API — prefer this over mapping locally. */
   type_display?: string;
+  /** The same, in Devanagari. Both are returned; the client picks by locale. */
+  type_display_hi?: string;
   /**
-   * POST held (migration 039), distinct from the rank above: an Acharya is
-   * still a Muni. 'none' is a real answer, not a missing one.
+   * POST held (migration 039, widened by 044), distinct from the rank above:
+   * an Acharya is still a Muni. 'none' is a real answer, not a missing one.
    */
-  pad?: 'acharya' | 'elacharya' | 'upadhyaya' | 'ganini' | 'none';
+  pad?: 'acharya' | 'upadhyaya' | 'elacharya' | 'ganini' | 'bhattarak'
+      | 'panyas' | 'gani' | 'pravartak' | 'pravartini' | 'mahattara' | 'sadhvi_pramukha'
+      | 'none';
   /** "Acharya", "Ganini", … Empty string when the post is 'none'. */
   pad_display?: string;
+  pad_display_hi?: string;
+  /**
+   * Derived from `samadhi_date` by the API. A samadhistha profile is a record:
+   * it stays fully visible, but has no representatives and nothing to update.
+   */
+  is_samadhistha?: boolean;
   /**
    * Anniversary dates (migration 039). Nullable, and `null` clears the field on
    * save — `diksha_year` stays authoritative when only the year is known.
@@ -48,6 +67,7 @@ export interface MaharajProfile {
   /** Sampradaya, and the panth/gaccha within it. */
   sect?: 'digambar' | 'shwetambar';
   sect_display?: string;
+  sect_display_hi?: string;
   sub_sect?: string;
   diksha_year?: number;
   guru_name?: string;

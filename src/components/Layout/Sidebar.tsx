@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next'
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutGrid, Plus, Settings as SettingsIcon } from 'lucide-react';
+import { LayoutGrid, Settings as SettingsIcon } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { useProfilesStore } from '../../store/profilesStore';
 import { asceticTitle, sectLabel } from '../../lib/ascetic';
@@ -122,21 +122,11 @@ export default function Sidebar({ open = false }: { open?: boolean }) {
             )}
 
             {/*
-              Registering a second Sadhu-Sadhvi had no entry point at all: the
-              only link to /profiles/new sat on the empty state, which a rep who
-              already has a profile never sees.
+              No "Add Sadhu-Sadhvi" entry. Profiles are created by the JainERP
+              team and representatives are invited to them (migration 044), so a
+              link here would lead to a form whose only outcome is a 403. A rep
+              who needs a new profile is told who to ask on the dashboard.
             */}
-            <li>
-              <NavLink
-                to="/profiles/new"
-                className={({ isActive }) =>
-                  `sidebar-link gap-2.5 ${isActive ? 'sidebar-link-active' : 'sidebar-link-inactive'}`
-                }
-              >
-                <Plus size={16} className="flex-shrink-0" />
-                {t('nav.addSant')}
-              </NavLink>
-            </li>
           </ul>
         </div>
 
