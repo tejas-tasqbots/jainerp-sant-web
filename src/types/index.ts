@@ -48,8 +48,10 @@ export interface MaharajProfile {
   pad_display?: string;
   pad_display_hi?: string;
   /**
-   * Derived from `samadhi_date` by the API. A samadhistha profile is a record:
-   * it stays fully visible, but has no representatives and nothing to update.
+   * Whether the ascetic has attained samadhi (migration 045). THIS is the
+   * state, not `samadhi_date` — most historical entries record the fact and no
+   * date. A samadhistha profile is a record: it stays fully visible, but has no
+   * representatives and nothing to update.
    */
   is_samadhistha?: boolean;
   /**
@@ -58,7 +60,7 @@ export interface MaharajProfile {
    */
   birth_date?: string | null;
   diksha_date?: string | null;
-  /** Set once the ascetic has attained samadhi; the profile becomes historical. */
+  /** The samadhi date when it is known. Read `is_samadhistha` for the state. */
   samadhi_date?: string | null;
   /** The observed tithi in words — observance follows the tithi, not the date. */
   tithi_note?: string | null;
