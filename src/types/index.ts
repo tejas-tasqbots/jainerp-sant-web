@@ -51,7 +51,7 @@ export interface MaharajProfile {
    * Whether the ascetic has attained samadhi (migration 045). THIS is the
    * state, not `samadhi_date` — most historical entries record the fact and no
    * date. A samadhistha profile is a record: it stays fully visible, but has no
-   * representatives and nothing to update.
+   * sangh representatives and nothing to update.
    */
   is_samadhistha?: boolean;
   /**
@@ -85,6 +85,16 @@ export interface MaharajProfile {
   place?: string;
   current_city?: string;
   current_state?: string;
+  /**
+   * Sangh membership (migration 047). Read-only in this portal: a sangh answers
+   * to several head ascetics at once, so it is curated by the Super Admin —
+   * a representative speaks for one ascetic, not for the group.
+   */
+  sangh_id?: string | null;
+  sangh_name?: string | null;
+  sangh_name_hi?: string | null;
+  sangh_parampara?: string | null;
+  is_sangh_head?: boolean;
   created_at: string;
 }
 

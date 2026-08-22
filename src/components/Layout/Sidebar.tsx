@@ -123,7 +123,7 @@ export default function Sidebar({ open = false }: { open?: boolean }) {
 
             {/*
               No "Add Sadhu-Sadhvi" entry. Profiles are created by the JainERP
-              team and representatives are invited to them (migration 044), so a
+              team and sangh representatives are invited to them (migration 044), so a
               link here would lead to a form whose only outcome is a 403. A rep
               who needs a new profile is told who to ask on the dashboard.
             */}
@@ -157,7 +157,7 @@ export default function Sidebar({ open = false }: { open?: boolean }) {
             {user?.name?.[0]?.toUpperCase() ?? user?.mobile?.[0] ?? 'R'}
           </div>
           <div className="min-w-0">
-            <p className="text-navy-900 text-sm font-medium truncate">{user?.name ?? 'Representative'}</p>
+            <p className="text-navy-900 text-sm font-medium truncate">{user?.name ?? 'Sangh Representative'}</p>
             <p className="text-slate-400 text-xs truncate">{user?.mobile}</p>
           </div>
         </div>

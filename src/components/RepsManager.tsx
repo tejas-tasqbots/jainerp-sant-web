@@ -9,7 +9,7 @@ export interface Rep {
   mobile: string;
   name?: string | null;
   linked: boolean;
-  /** admin = the sant admin, who manages this list. rep = everyone else. */
+  /** admin = the Sanghpati admin, who manages this list. rep = everyone else. */
   role: 'admin' | 'rep';
   is_primary: boolean;
   /** True for the signed-in user's own row, so they are never offered "remove me". */
@@ -24,7 +24,7 @@ interface RepsData {
   primary: Rep | null;
   co_reps: Rep[];
   all: Rep[];
-  /** What the signed-in representative may do — resolved by the API, not guessed here. */
+  /** What the signed-in sangh representative may do — resolved by the API, not guessed here. */
   viewer: {
     role: 'admin' | 'rep' | null;
     rep_id: string | null;
@@ -59,12 +59,12 @@ function shortDate(iso?: string | null) {
  * Everyone who can log in and manage this profile, and — since migration 044 —
  * what each of them is allowed to do.
  *
- * THE MODEL. One representative is the **sant admin**: they add people, remove
+ * THE MODEL. One sangh representative is the **Sanghpati admin**: they add people, remove
  * them, and can hand the role on. Everybody else maintains the profile but
  * cannot hand out access. Before 044 there were no roles and any co-rep could
  * remove any other, including the person who had invited them.
  *
- * A plain representative is NOT shown a disabled button. They get the request
+ * A plain sangh representative is NOT shown a disabled button. They get the request
  * form, because the honest answer to "can I add someone?" is "ask the sant
  * admin" and the app should carry that request rather than leaving them to
  * find the admin's phone number. The alternative in practice is people sharing

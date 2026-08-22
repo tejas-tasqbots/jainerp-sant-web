@@ -71,7 +71,7 @@ export default function SettingsPage() {
           {/* The live list, not `sant_ids`: that is a snapshot taken at login,
               so a profile registered or shared with this rep mid-session made
               this line disagree with the switcher standing next to it. */}
-          You are logged in as a Sadhu-Sadhvi representative managing{' '}
+          You are logged in as a Sadhu-Sadhvi sangh representative managing{' '}
           <strong>{profiles.length || sant_ids.length}</strong> profile(s).
         </p>
         {profiles.length > 1 && (

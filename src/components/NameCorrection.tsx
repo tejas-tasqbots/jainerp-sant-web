@@ -15,7 +15,7 @@ interface ChangeRequest {
   review_note?: string | null;
 }
 
-/** The fields a representative may ask to have changed, and how to label them. */
+/** The fields a sangh representative may ask to have changed, and how to label them. */
 const FIELDS = [
   { key: 'name_en', labelKey: 'sant.nameEn' },
   { key: 'name_hi', labelKey: 'sant.nameHi' },
@@ -28,12 +28,12 @@ const FIELDS = [
  *
  * WHY THE NAME IS NOT AN EDIT BOX. Devotees follow a specific Maharaj Saheb by
  * name — it is what appears beside every vihar update and broadcast. Letting a
- * representative silently rename a profile would let a following built under
+ * sangh representative silently rename a profile would let a following built under
  * one identity be pointed at another, so the name belongs to the Super Admin
  * and a correction is reviewed before it goes live (migration 044).
  *
  * WHY THIS SCREEN EXISTS ANYWAY. "You cannot change this" on its own produces a
- * support call. The representative is usually the one person who knows the
+ * support call. The sangh representative is usually the one person who knows the
  * correct Devanagari spelling, so they type it here, it is reviewed, and what
  * gets applied is exactly the value that was read.
  */

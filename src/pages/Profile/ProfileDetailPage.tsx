@@ -204,6 +204,17 @@ export default function ProfileDetailPage() {
               {profile.samuday} · {(lang === 'hi' ? profile.type_display_hi : profile.type_display)
                 ?? asceticTitle(profile.type, lang)}
             </p>
+            {/* Read-only, and deliberately not in the edit form below: the
+                sangh is curated by the Super Admin. */}
+            {profile.sangh_name && (
+              <p className="text-white/70 text-xs mt-1">
+                {(lang === 'hi' && profile.sangh_name_hi) || profile.sangh_name}
+                {profile.is_sangh_head && ` · ${t('sant.sanghHead')}`}
+                {profile.sangh_parampara && (
+                  <span className="block text-white/50">{profile.sangh_parampara}</span>
+                )}
+              </p>
+            )}
             {profile.diksha_year && <p className="text-white/60 text-xs mt-0.5">Diksha {profile.diksha_year}</p>}
             <p className="text-white/60 text-xs mt-0.5">
               {profile.followers_count} {profile.followers_count === 1 ? 'follower' : 'followers'}
@@ -324,7 +335,7 @@ export default function ProfileDetailPage() {
                   onChange={(e) => setForm((f) => ({ ...f, tithi_note: e.target.value }))} />
               </div>
               {/* No samadhi date field. Recording it detaches every
-                  representative and retires the current location, so the API
+                  sangh representative and retires the current location, so the API
                   accepts it from the Super Admin only — a rep who knows would
                   otherwise be revoking their own access with a date picker. A
                   correction request is the path, offered below. */}

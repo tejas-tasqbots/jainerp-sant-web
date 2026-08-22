@@ -29,7 +29,7 @@ export default function App() {
       <Route element={<RequireAuth><Layout /></RequireAuth>}>
         <Route index element={<DashboardPage />} />
         {/* `profiles/new` is gone: Sadhu-Sadhvi profiles are created by the
-            JainERP team (migration 044) and representatives are invited to them.
+            JainERP team (migration 044) and sangh representatives are invited to them.
             This redirect is NOT redundant with the catch-all below — `:id`
             matches the literal segment "new" first, so without it an old
             bookmark rendered the profile page with id="new", which asked the
