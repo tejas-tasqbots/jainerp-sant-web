@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { StateSelect, CitySelect } from '../../components/GeoSelect';
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
@@ -91,14 +92,17 @@ export default function ViharPage() {
                 onChange={(e) => setForm((f) => ({ ...f, place: e.target.value }))} required />
             </div>
             <div>
-              <label htmlFor="viharp-city" className="label">{t('ui.city')}</label>
-              <input id="viharp-city" className="input" placeholder="Palitana" value={form.city}
-                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+              {/* State first, then City — CitySelect needs a state to ask for.
+                  Same pair as the location form, so a stop and the stay it
+                  becomes cannot disagree about how a place is spelt. */}
+              <label className="label">{t('ui.stateReq')}</label>
+              <StateSelect value={form.state}
+                onChange={(v) => setForm((f) => ({ ...f, state: v, city: '' }))} />
             </div>
             <div>
-              <label htmlFor="viharp-state" className="label">{t('ui.stateReq')}</label>
-              <input id="viharp-state" className="input" placeholder="Gujarat" value={form.state}
-                onChange={(e) => setForm((f) => ({ ...f, state: e.target.value }))} required />
+              <label className="label">{t('ui.city')}</label>
+              <CitySelect state={form.state} value={form.city}
+                onChange={(v) => setForm((f) => ({ ...f, city: v }))} />
             </div>
           </div>
           <div>

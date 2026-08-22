@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { StateSelect, CitySelect } from '../../components/GeoSelect';
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
@@ -37,6 +38,8 @@ export default function RequirementsPage() {
   const [error, setError] = useState('');
   const toast = useToast();
   const [notice, setNotice] = useState('');
+  /** Drives the city dropdown only — a requirement stores just the city. */
+  const [cityState, setCityState] = useState('');
   const [form, setForm] = useState({
     type: 'chuka', description: '', needed_on: '', city: '',
     visibility: 'followers_and_temples',
@@ -79,6 +82,7 @@ export default function RequirementsPage() {
         ? `Requirement posted — ${added.notified} follower(s) notified.`
         : 'Requirement posted.');
       setForm({ type: 'chuka', description: '', needed_on: '', city: '', visibility: 'followers_and_temples' });
+      setCityState('');
     } catch (e) {
       setError(apiError(e));
     } finally {
@@ -140,9 +144,19 @@ export default function RequirementsPage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="requir-city" className="label">{t('ui.city')}</label>
-              <input id="requir-city" className="input" placeholder="Surat" value={form.city}
-                onChange={(e) => setForm((f) => ({ ...f, city: e.target.value }))} />
+              {/* The API stores only `city` on a requirement, so `state` here is
+                  a picker for the city list rather than something submitted —
+                  which is why it is local state, not part of the form body. */}
+              <label className="label">{t('ui.state')}</label>
+              <StateSelect value={cityState} onChange={(v) => {
+                setCityState(v);
+                setForm((f) => ({ ...f, city: '' }));
+              }} />
+            </div>
+            <div>
+              <label className="label">{t('ui.city')}</label>
+              <CitySelect state={cityState} value={form.city}
+                onChange={(v) => setForm((f) => ({ ...f, city: v }))} />
             </div>
             <div>
               <label htmlFor="requir-visibility" className="label">{t('ui.visibility')}</label>
