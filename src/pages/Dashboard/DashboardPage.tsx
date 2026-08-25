@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate } from 'react-router-dom';
 import { MapPin } from 'lucide-react';
@@ -137,14 +138,8 @@ export default function DashboardPage() {
                 />
               )}
               <Link to={`/profiles/${p.id}`} className="flex items-start gap-3 min-w-0 flex-1">
-                {(p.photo_base64 || p.photo_url) ? (
-                  <img src={p.photo_base64 || p.photo_url} alt=""
-                    className="w-11 h-11 rounded-full object-cover flex-shrink-0" />
-                ) : (
-                  <span className="w-11 h-11 rounded-full bg-navy-100 text-navy-800 font-bold flex items-center justify-center flex-shrink-0">
-                    {displayName(p, lang)[0]?.toUpperCase() ?? '?'}
-                  </span>
-                )}
+                <ProfilePhoto src={p.photo_base64 || p.photo_url}
+                  name={displayName(p, lang)} className="w-11 h-11" />
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold text-navy-900 truncate">
                     {displayName(p, lang)}

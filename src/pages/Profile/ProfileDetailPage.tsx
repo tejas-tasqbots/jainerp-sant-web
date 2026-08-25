@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { useTranslation } from 'react-i18next'
 import {
   almsLabel, asceticTitle, displayName, padsForType, secondaryName, SECTS, subSectsFor,
@@ -153,14 +154,12 @@ export default function ProfileDetailPage() {
         <div className="flex flex-col sm:flex-row items-start gap-5">
           <div className="relative">
             {/* Inline photo wins over an external URL — matches the API read order. */}
-            {(profile.photo_base64 || profile.photo_url) ? (
-              <img src={profile.photo_base64 || profile.photo_url} alt={displayName(profile, lang)}
-                className="w-20 h-20 rounded-full object-cover border-2 border-white/30" />
-            ) : (
-              <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center text-3xl font-bold text-white">
-                {displayName(profile, lang)[0]}
-              </div>
-            )}
+            {/* alt was the ascetic's NAME, so a failed load painted it inside
+                the frame where their face belongs. */}
+            <ProfilePhoto src={profile.photo_base64 || profile.photo_url}
+              name={displayName(profile, lang)}
+              className="w-20 h-20 text-3xl border-2 border-white/30"
+              textClassName="bg-white/20 text-white" />
             {!isSamadhistha && <button
               onClick={() => fileRef.current?.click()}
               disabled={photoUploading}

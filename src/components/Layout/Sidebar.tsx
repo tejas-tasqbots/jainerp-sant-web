@@ -8,17 +8,16 @@ import { asceticTitle, sectLabel } from '../../lib/ascetic';
 import api from '../../lib/api';
 import { LanguageSwitcher } from '../LanguageSwitcher';
 import type { MaharajProfile } from '../../types';
+import { ProfilePhoto } from '../ProfilePhoto';
 
 /** Small round avatar for a profile row — inline photo wins, else the initial. */
 function ProfileAvatar({ profile }: { profile: MaharajProfile }) {
-  const src = profile.photo_base64 || profile.photo_url;
-  if (src) {
-    return <img src={src} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0" />;
-  }
   return (
-    <span className="w-7 h-7 rounded-full bg-navy-100 text-navy-800 text-xs font-bold flex items-center justify-center flex-shrink-0">
-      {profile.name?.[0]?.toUpperCase() ?? '?'}
-    </span>
+    <ProfilePhoto
+      src={profile.photo_base64 || profile.photo_url}
+      name={profile.name}
+      className="w-7 h-7 text-xs"
+    />
   );
 }
 
