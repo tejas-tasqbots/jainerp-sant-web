@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { DevoteeView } from './DevoteeView';
 import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { useTranslation } from 'react-i18next'
 import {
@@ -423,6 +424,12 @@ export default function ProfileDetailPage() {
       {/* The names are the Super Admin's to set; this is how a rep gets one
           corrected, and where a pending correction is visible while it waits. */}
       {id && <NameCorrection profileId={id} profile={profile} onChanged={() => setProfile((p) => p)} />}
+
+      {/* Everything the devotee app shows that this portal did not — 22 fields
+          the public could read and the ascetic's own representative could not.
+          Read-only: these are curated from the directory, so a correction goes
+          through the request above. */}
+      {profile && <DevoteeView profile={profile} />}
 
       {id && !isSamadhistha && <PublicProfileEditor profileId={id} />}
       {/* Read-only on a memorial: the API has already detached everybody, so an
