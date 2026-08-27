@@ -37,6 +37,27 @@ function formatDate(d?: string | null) {
   });
 }
 
+/**
+ * Soonest first among what has not happened yet, then the past most-recent
+ * first — a rep opens this page to see what is coming, not to scroll years of
+ * finished programmes.
+ *
+ * Both the list load and the add-event insert go through this. They used to
+ * disagree: the server returns newest-first by default, but the insert
+ * re-sorted oldest-first, so the whole list silently flipped order the moment
+ * you added an event. Mirrored verbatim in the sant app's EventsTab.
+ */
+function byWhenItMatters(a: SantEvent, b: SantEvent) {
+  const today = new Date().toISOString().slice(0, 10);
+  const endOf = (e: SantEvent) => (e.ends_on || e.starts_on).slice(0, 10);
+  const aPast = endOf(a) < today;
+  const bPast = endOf(b) < today;
+  if (aPast !== bPast) return aPast ? 1 : -1;
+  return aPast
+    ? b.starts_on.localeCompare(a.starts_on)
+    : a.starts_on.localeCompare(b.starts_on);
+}
+
 export default function EventsPage() {
   const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
@@ -50,7 +71,7 @@ export default function EventsPage() {
   useEffect(() => {
     if (!id) return;
     api.get(`/sant/${id}/events`)
-      .then((data: any) => setEvents(Array.isArray(data) ? data : []))
+      .then((data: any) => setEvents(Array.isArray(data) ? [...data].sort(byWhenItMatters) : []))
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [id]);
@@ -74,7 +95,7 @@ export default function EventsPage() {
         starts_at_time: form.starts_at_time || undefined,
         tithi_note: form.tithi_note || undefined,
       }) as SantEvent;
-      setEvents((prev) => [...prev, created].sort((a, b) => a.starts_on.localeCompare(b.starts_on)));
+      setEvents((prev) => [...prev, created].sort(byWhenItMatters));
       setForm({ ...EMPTY });
       toast.show('Event added — followers have been notified.');
     } catch (err) {
