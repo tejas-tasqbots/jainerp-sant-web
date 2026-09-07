@@ -15,13 +15,61 @@ interface ChangeRequest {
   review_note?: string | null;
 }
 
-/** The fields a sangh representative may ask to have changed, and how to label them. */
+/**
+ * The fields this card offers a "Request a correction" button for.
+ *
+ * Deliberately still four, even though the queue now holds two dozen. The rest
+ * are edited on the profile form above, which files its own requests on save —
+ * offering a second, one-field-at-a-time path to the same thing would be two
+ * ways to do one job, and the slower one.
+ *
+ * These four keep their own button because they are shown READ-ONLY in the
+ * hero and have no field on the form to type into.
+ */
 const FIELDS = [
   { key: 'name_en', labelKey: 'sant.nameEn' },
   { key: 'name_hi', labelKey: 'sant.nameHi' },
   { key: 'samuday', labelKey: 'ui.samuday' },
   { key: 'guru_name', labelKey: 'ui.guruName' },
 ] as const;
+
+/**
+ * How to name a field in the pending / decided lists.
+ *
+ * The lists render whatever the queue returns, which since 2026-09 is any of
+ * the profile's columns — so without this a representative reads
+ * "name_before_diksha → …" and "sub_sect → …" in the app, which is the
+ * database talking rather than the product.
+ */
+const FIELD_LABELS: Record<string, string> = {
+  name: 'Name',
+  name_en: 'Name (English)',
+  name_hi: 'Name (Hindi)',
+  type: 'Rank',
+  pad: 'Post held',
+  sect: 'Sect',
+  sub_sect: 'Gaccha / panth',
+  samuday: 'Samuday',
+  guru_name: 'Guru',
+  lineage: 'Lineage',
+  diksha_year: 'Diksha year',
+  diksha_date: 'Diksha date',
+  diksha_place: 'Diksha place',
+  birth_date: 'Birth date',
+  tithi_note: 'Tithi',
+  name_before_diksha: 'Name before diksha',
+  fathers_name: "Father's name",
+  mothers_name: "Mother's name",
+  education: 'Study',
+  honours: 'Conferred titles',
+  bio: 'Short bio',
+  about: 'About',
+  languages: 'Languages',
+  samadhi_date: 'Samadhi date',
+  photo: 'Photograph',
+};
+
+const fieldLabel = (key: string) => FIELD_LABELS[key] ?? key;
 
 /**
  * The name, in both scripts, and the way to get it corrected.
@@ -150,7 +198,9 @@ export function NameCorrection({
         <form onSubmit={submit} className="mt-4 rounded-lg border border-navy-100 bg-navy-50 p-3 space-y-3">
           <p className="text-xs font-semibold text-navy-900">
             {t('sant.correctionFor', {
-              field: t(FIELDS.find((f) => f.key === openField)?.labelKey ?? openField),
+              field: FIELDS.some((f) => f.key === openField)
+                ? t(FIELDS.find((f) => f.key === openField)!.labelKey)
+                : fieldLabel(openField),
             })}
           </p>
           <div>
@@ -175,13 +225,48 @@ export function NameCorrection({
         </form>
       )}
 
+      {/* ── EVERYTHING AWAITING REVIEW ──────────────────────────────────────
+          The four rows above show pending corrections for their OWN field.
+          Since the profile form started filing requests too, most of what a
+          representative is waiting on is not one of those four — and with no
+          list of it, saving the form produced a toast and then, as far as the
+          app showed, nothing at all. That reads as a change that did not
+          happen, and the second thing a representative does about it is submit
+          it again. */}
+      {requests.some((r) => r.status === 'pending'
+        && !FIELDS.some((f) => f.key === r.field)) && (
+        <div className="mt-4 rounded-lg border border-amber-100 bg-amber-50 p-3">
+          <p className="mb-1.5 text-xs font-semibold text-amber-900">
+            {t('sant.awaitingApproval')}
+          </p>
+          <div className="space-y-1">
+            {requests
+              .filter((r) => r.status === 'pending' && !FIELDS.some((f) => f.key === r.field))
+              .map((r) => (
+                <div key={r.id} className="flex items-start justify-between gap-3">
+                  <p className="min-w-0 text-xs text-amber-900">
+                    {fieldLabel(r.field)} →{' '}
+                    <strong className="break-words">{r.requested_value}</strong>
+                  </p>
+                  <button
+                    onClick={() => withdraw(r)}
+                    className="whitespace-nowrap text-xs text-amber-700 hover:text-amber-900"
+                  >
+                    {t('reps.withdraw')}
+                  </button>
+                </div>
+              ))}
+          </div>
+        </div>
+      )}
+
       {/* Decided requests, so a rejection with a reason is visible rather than
           the request simply disappearing from the list. */}
       {requests.some((r) => r.status !== 'pending') && (
         <div className="mt-4 space-y-1">
           {requests.filter((r) => r.status !== 'pending').slice(0, 5).map((r) => (
             <p key={r.id} className="text-xs text-slate-500">
-              {r.field} → <strong>{r.requested_value}</strong> · {r.status}
+              {fieldLabel(r.field)} → <strong>{r.requested_value}</strong> · {r.status}
               {r.review_note ? ` — ${r.review_note}` : ''}
             </p>
           ))}

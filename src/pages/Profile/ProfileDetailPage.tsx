@@ -26,6 +26,13 @@ export default function ProfileDetailPage() {
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<MaharajProfile>>({});
   const [saving, setSaving] = useState(false);
+  /**
+   * Bumped whenever something is filed for review, so the pending-requests
+   * list below re-reads. A counter rather than a callback because the list is
+   * a child that owns its own fetch — lifting that fetch up here just to
+   * refresh it would put the queue in two places.
+   */
+  const [requestsVersion, setRequestsVersion] = useState(0);
   const [photoUploading, setPhotoUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const toast = useToast();
@@ -59,6 +66,30 @@ export default function ProfileDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  /**
+   * Send the form for review.
+   *
+   * ── THIS NO LONGER SAVES ANYTHING ───────────────────────────────────────
+   * Since 2026-09 a sangh representative changes the ascetic's LOCATION
+   * directly and nothing else; every field on this form is now the Super
+   * Admin's. `PATCH /sant/:id` files one change request per field that has
+   * actually changed and returns `{ updated: false, submitted, unchanged,
+   * pending }`.
+   *
+   * So three things had to change here, and the second is the one that
+   * matters most:
+   *
+   *   1. The toast says what happened — "3 corrections sent for approval" —
+   *      rather than "Profile saved."
+   *   2. The local profile is NOT updated from the form. It used to be, which
+   *      would now show the representative their own unapproved values as
+   *      though they were live: they would close the page believing the
+   *      change had landed, and see the old value again on the next load with
+   *      no explanation. A screen that lies once is worse than one that makes
+   *      you wait.
+   *   3. The form stays open on a no-op, so "nothing had changed" does not
+   *      look like a silent failure.
+   */
   async function saveEdit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
@@ -67,13 +98,26 @@ export default function ProfileDetailPage() {
       // sent as '' — the DTO validates against the two sects and would 400,
       // taking every other edit on the form down with it.
       const { sect, sub_sect, ...rest } = form;
-      await api.patch(`/sant/${id}`, {
+      const res = await api.patch(`/sant/${id}`, {
         ...rest,
         ...(sect ? { sect, sub_sect: sub_sect || undefined } : {}),
-      });
-      setProfile((p) => p ? { ...p, ...form } as MaharajProfile : p);
+      }) as { submitted?: number; pending?: string[]; unchanged?: string[] };
+
+      const submitted = res?.submitted ?? 0;
+      const pending = res?.pending?.length ?? 0;
+
+      if (submitted === 0 && pending === 0) {
+        toast.show('Nothing had changed, so nothing was sent.');
+        return;
+      }
       setEditing(false);
-      toast.show('Profile saved.');
+      setRequestsVersion((v) => v + 1);
+      toast.show(
+        submitted > 0
+          ? `${submitted} ${submitted === 1 ? 'correction' : 'corrections'} sent to the JainERP `
+            + 'team for approval. The profile updates once they are approved.'
+          : 'Those corrections are already waiting for approval.',
+      );
     } catch (e) {
       // A toast, not an alert(): a browser dialog blocks the page and the rep
       // has to dismiss it before they can see which field the message is about.
@@ -92,9 +136,16 @@ export default function ProfileDetailPage() {
     setPhotoUploading(true);
     try {
       const dataUri = await compressImage(file, { maxDim: 800, maxBytes: 150_000 });
-      const res = await api.post(`/sant/${id}/photo`, { photo_base64: dataUri }) as any;
-      setProfile((p) => p ? { ...p, photo_base64: res.photo_base64 } : p);
-      toast.show('Photo updated.');
+      await api.post(`/sant/${id}/photo`, { photo_base64: dataUri });
+      // Not applied locally, for the same reason the form is not: the
+      // photograph is now reviewed before it is published (photographs of
+      // ascetics are a sensitive matter — doc-v2/Images_And_Photos.md), and
+      // showing it in place here would tell the representative it was live.
+      setRequestsVersion((v) => v + 1);
+      toast.show(
+        'Photograph sent for approval. It appears on the profile once the '
+        + 'JainERP team has approved it.',
+      );
     } catch (e) {
       toast.show(apiError(e), 'bad');
     } finally {
@@ -423,7 +474,7 @@ export default function ProfileDetailPage() {
 
       {/* The names are the Super Admin's to set; this is how a rep gets one
           corrected, and where a pending correction is visible while it waits. */}
-      {id && <NameCorrection profileId={id} profile={profile} onChanged={() => setProfile((p) => p)} />}
+      {id && <NameCorrection key={requestsVersion} profileId={id} profile={profile} />}
 
       {/* Everything the devotee app shows that this portal did not — 22 fields
           the public could read and the ascetic's own representative could not.

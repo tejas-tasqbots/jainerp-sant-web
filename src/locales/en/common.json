@@ -101,7 +101,8 @@
     "samadhiBanner": "This profile is a record. The ascetic has attained samadhi, so location, vihar and broadcasts are closed. The profile stays visible to devotees.",
     "samadhistha": "Samadhistha",
     "selectAll": "Select all",
-    "selectedCount": "{{count}} selected"
+    "selectedCount": "{{count}} selected",
+    "awaitingApproval": "Waiting for approval"
   },
   "ui": {
     "about": "About",

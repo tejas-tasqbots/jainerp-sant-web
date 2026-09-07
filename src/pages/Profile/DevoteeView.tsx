@@ -22,6 +22,21 @@ import type { MaharajProfile } from '../../types';
  * control for that is directly above this block — rather than editing a
  * scraped record in place, which would silently diverge from the source it is
  * credited to.
+ *
+ * ── IT IS NO LONGER "WHAT DEVOTEES SEE" ─────────────────────────────────────
+ * Four of these left the devotee profile in 2026-09 (see
+ * doc-v2/Sant_Data_Governance.md §4): the parampara, the sangh, Updates and the
+ * sources. They are STILL SHOWN HERE, and deliberately.
+ *
+ * A representative is the person answerable for what the record says, and the
+ * scraped text is exactly where the errors are — `updates_text` was rendering
+ * raw WordPress shortcodes on 26 profiles, which is the kind of thing only
+ * somebody who knows the ascetic will spot and report. Hiding the record from
+ * the one person able to correct it, because devotees stopped seeing it, would
+ * be the wrong half of the change.
+ *
+ * What did have to change is the CLAIM. This block used to promise "everything
+ * a devotee can read", and rows that are no longer public now say so.
  */
 export function DevoteeView({ profile }: { profile: MaharajProfile }) {
   const p = profile as MaharajProfile & Record<string, unknown>;
@@ -46,12 +61,16 @@ export function DevoteeView({ profile }: { profile: MaharajProfile }) {
     ['Sallekhana place', str('sallekhana_place')],
   ].filter(([, v]) => v) as Array<[string, string]>;
 
+  // "(not shown to devotees)" on the three the 2026-09 governance pass removed
+  // from the public profile. Without it a representative reads this block as a
+  // preview of the devotee app and reports a bug that is the intended state.
+  const notPublic = ' (not shown to devotees)';
   const texts: Array<[string, string | null]> = [
     ['The life (English)', str('bio_en')],
     ['The life (Hindi)', str('bio_hi')],
-    ['Lineage (parampara)', str('sangh_text')],
+    [`Lineage (parampara)${notPublic}`, str('sangh_text')],
     ['Chaturmas (varshayog)', str('chaturmas_text')],
-    ['Updates', str('updates_text')],
+    [`Updates${notPublic}`, str('updates_text')],
   ].filter(([, v]) => v) as Array<[string, string]>;
 
   const gallery = Array.isArray(p.gallery_urls)
@@ -67,7 +86,7 @@ export function DevoteeView({ profile }: { profile: MaharajProfile }) {
 
   return (
     <div className="card mt-4 p-4">
-      <h2 className="text-base font-semibold text-navy-900">What devotees also see</h2>
+      <h2 className="text-base font-semibold text-navy-900">The full record</h2>
       <p className="mb-3 mt-0.5 text-xs text-slate-500">
         Curated by the JainERP team from the published directory. If anything here is
         wrong, raise a correction above rather than editing the record — it is credited
