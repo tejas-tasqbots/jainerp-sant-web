@@ -3,7 +3,7 @@ import { DevoteeView } from './DevoteeView';
 import { ProfilePhoto } from '../../components/ProfilePhoto';
 import { useTranslation } from 'react-i18next'
 import {
-  almsLabel, asceticTitle, displayName, padsForType, secondaryName, SECTS, subSectsFor,
+  almsLabel, asceticTitle, displayName, padsForType, secondaryName, SECTS,
   typesForSect,
 } from '../../lib/ascetic'
 import { Link, useParams } from 'react-router-dom';
@@ -69,7 +69,9 @@ export default function ProfileDetailPage() {
           name_before_diksha: data.name_before_diksha,
           fathers_name: data.fathers_name,
           mothers_name: data.mothers_name,
-          sect: data.sect, sub_sect: data.sub_sect,
+          // sub_sect is not seeded: the form no longer offers Panth / Gaccha,
+          // and seeding a field nothing edits only risks sending it back.
+          sect: data.sect,
           diksha_year: data.diksha_year, guru_name: data.guru_name, bio: data.bio,
           about: data.about, diksha_place: data.diksha_place, education: data.education,
           honours: data.honours, lineage: data.lineage,
@@ -115,7 +117,7 @@ export default function ProfileDetailPage() {
       // The whole form is sent, so an unset sect must be omitted rather than
       // sent as '' — the DTO validates against the two sects and would 400,
       // taking every other edit on the form down with it.
-      const { sect, sub_sect, ...rest } = form;
+      const { sect, ...rest } = form;
       // Sent only when it actually differs. The API files a request per CHANGED
       // field, so an untouched list would come back counted as "unchanged" and
       // inflate what the toast reports.
@@ -126,7 +128,7 @@ export default function ProfileDetailPage() {
         || languages.some((l, i) => l !== prevLanguages[i]);
       const res = await api.patch(`/sant/${id}`, {
         ...rest,
-        ...(sect ? { sect, sub_sect: sub_sect || undefined } : {}),
+        ...(sect ? { sect } : {}),
         ...(languagesChanged ? { languages } : {}),
       }) as { submitted?: number; pending?: string[]; unchanged?: string[] };
 
@@ -446,31 +448,22 @@ export default function ProfileDetailPage() {
             {/* Sampradaya is editable here, not only at registration: a rep who
                 skipped it (or picked wrong) had no way to correct it, and it is
                 what the sant directory will filter on. */}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="profil-sect" className="label">{t('ui.sect')}</label>
-                <select id="profil-sect" className="input" value={form.sect ?? ''}
-                  onChange={(e) => setForm((f) => ({
-                    ...f,
-                    sect: (e.target.value || undefined) as MaharajProfile['sect'],
-                    sub_sect: undefined,
-                  }))}>
-                  <option value="">—</option>
-                  {SECTS.map((s) => (
-                    <option key={s.value} value={s.value}>{lang === 'hi' ? s.labelHi : s.label}</option>
-                  ))}
-                </select>
-              </div>
-              {form.sect && (
-                <div>
-                  <label htmlFor="profil-sub-sect" className="label">{t('ui.panthGaccha')}</label>
-                  <select id="profil-sub-sect" className="input" value={form.sub_sect ?? ''}
-                    onChange={(e) => setForm((f) => ({ ...f, sub_sect: e.target.value || undefined }))}>
-                    <option value="">—</option>
-                    {subSectsFor(form.sect).map((s) => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
-              )}
+            {/* Panth / Gaccha (`sub_sect`) is deliberately NOT offered here.
+                The column and the change-request queue still carry it — a
+                Super Admin sets it — but a representative is not asked to
+                choose one. */}
+            <div>
+              <label htmlFor="profil-sect" className="label">{t('ui.sect')}</label>
+              <select id="profil-sect" className="input" value={form.sect ?? ''}
+                onChange={(e) => setForm((f) => ({
+                  ...f,
+                  sect: (e.target.value || undefined) as MaharajProfile['sect'],
+                }))}>
+                <option value="">—</option>
+                {SECTS.map((s) => (
+                  <option key={s.value} value={s.value}>{lang === 'hi' ? s.labelHi : s.label}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="profil-guru-name" className="label">{t('ui.guruName')}</label>
