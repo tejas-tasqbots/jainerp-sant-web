@@ -64,6 +64,17 @@ export interface MaharajProfile {
   samadhi_date?: string | null;
   /** The observed tithi in words — observance follows the tithi, not the date. */
   tithi_note?: string | null;
+  /**
+   * Householder life, before diksha.
+   *
+   * Declared here because they are `REQUESTABLE_PROFILE_FIELDS` like the rest:
+   * DevoteeView could already read them from the raw row and show them, but
+   * with no entry on this type there was nothing to bind a form field to, so
+   * the one person who actually knows them could not propose a correction.
+   */
+  name_before_diksha?: string | null;
+  fathers_name?: string | null;
+  mothers_name?: string | null;
   /** Community (Oswal, Porwal…), NOT the sect. */
   samuday: string;
   /** Sampradaya, and the panth/gaccha within it. */

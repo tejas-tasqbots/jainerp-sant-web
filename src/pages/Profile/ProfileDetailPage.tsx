@@ -25,6 +25,16 @@ export default function ProfileDetailPage() {
   const [error, setError] = useState('');
   const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<Partial<MaharajProfile>>({});
+  /**
+   * `languages` as the rep types it, kept out of `form` on purpose.
+   *
+   * The column is a TEXT[] and the DTO is `@IsArray()`, so it has to be split
+   * before it is sent. Splitting on every keystroke instead would delete the
+   * separator as it is typed — "hindi," round-trips through
+   * split/filter/join back to "hindi" — so the comma can never be entered.
+   * Held as text here and converted once, on submit.
+   */
+  const [languagesText, setLanguagesText] = useState('');
   const [saving, setSaving] = useState(false);
   /**
    * Bumped whenever something is filed for review, so the pending-requests
@@ -42,16 +52,23 @@ export default function ProfileDetailPage() {
     api.get(`/sant/${id}`)
       .then((data: any) => {
         setProfile(data);
+        setLanguagesText((data.languages ?? []).join(', '));
         // Every editable field must be seeded here. A field rendered by the
         // form but missing from this list opens blank even when the profile
         // holds a value, which reads to the rep as data loss (DEF-SANT-03).
-        // `name`, `name_en`, `name_hi` and `samadhi_date` are absent on
-        // purpose: the API refuses them from this portal (NAME_LOCKED /
-        // SUPERADMIN_ONLY), so a field here would be one the rep can type into
-        // and then watch the whole save fail on. They are shown read-only in
-        // the hero, with a Request-a-correction action beside them.
+        //
+        // The note that used to sit here said `name` and `samadhi_date` were
+        // absent because the API refuses them as NAME_LOCKED / SUPERADMIN_ONLY.
+        // 078 ended that: there is one list, `REQUESTABLE_PROFILE_FIELDS`, and
+        // both are on it — nothing on this form writes any more, it all files
+        // requests. `name_en` and `name_hi` are still absent, because they keep
+        // the dedicated correction rows below that carry a reason.
         setForm({ type: data.type, pad: data.pad ?? 'none',
+          name: data.name,
           samuday: data.samuday,
+          name_before_diksha: data.name_before_diksha,
+          fathers_name: data.fathers_name,
+          mothers_name: data.mothers_name,
           sect: data.sect, sub_sect: data.sub_sect,
           diksha_year: data.diksha_year, guru_name: data.guru_name, bio: data.bio,
           about: data.about, diksha_place: data.diksha_place, education: data.education,
@@ -60,6 +77,7 @@ export default function ProfileDetailPage() {
           // full timestamp, which the control silently rejects and shows empty.
           birth_date: data.birth_date?.slice(0, 10) ?? null,
           diksha_date: data.diksha_date?.slice(0, 10) ?? null,
+          samadhi_date: data.samadhi_date?.slice(0, 10) ?? null,
           tithi_note: data.tithi_note });
       })
       .catch((e) => setError(apiError(e)))
@@ -98,9 +116,18 @@ export default function ProfileDetailPage() {
       // sent as '' — the DTO validates against the two sects and would 400,
       // taking every other edit on the form down with it.
       const { sect, sub_sect, ...rest } = form;
+      // Sent only when it actually differs. The API files a request per CHANGED
+      // field, so an untouched list would come back counted as "unchanged" and
+      // inflate what the toast reports.
+      const languages = languagesText.split(',').map((s) => s.trim()).filter(Boolean);
+      const prevLanguages = profile?.languages ?? [];
+      const languagesChanged =
+        languages.length !== prevLanguages.length
+        || languages.some((l, i) => l !== prevLanguages[i]);
       const res = await api.patch(`/sant/${id}`, {
         ...rest,
         ...(sect ? { sect, sub_sect: sub_sect || undefined } : {}),
+        ...(languagesChanged ? { languages } : {}),
       }) as { submitted?: number; pending?: string[]; unchanged?: string[] };
 
       const submitted = res?.submitted ?? 0;
@@ -312,6 +339,14 @@ export default function ProfileDetailPage() {
         <div className="card mb-6">
           <h3 className="font-semibold text-navy-800 mb-4">{t('ui.editProfile')}</h3>
           <form onSubmit={saveEdit} className="space-y-4">
+            {/* The display name. Requestable since 078 like everything else on
+                this form; `name_en` and `name_hi` keep their own correction
+                rows below, which carry a reason. */}
+            <div>
+              <label htmlFor="profil-name" className="label">Name</label>
+              <input id="profil-name" className="input" value={form.name ?? ''}
+                onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))} />
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label htmlFor="profil-type" className="label">{t('ui.typeReq')}</label>
@@ -463,6 +498,40 @@ export default function ProfileDetailPage() {
               <p className="mt-1 text-xs text-slate-400">
                 A conferred title is written here — it is never the canonical rank above.
               </p>
+            </div>
+            <div>
+              <label htmlFor="profil-languages" className="label">Languages known</label>
+              <input id="profil-languages" className="input" value={languagesText}
+                placeholder="Hindi, Gujarati, Sanskrit"
+                onChange={(e) => setLanguagesText(e.target.value)} />
+              <p className="mt-1 text-xs text-slate-400">Separate with commas.</p>
+            </div>
+            {/* Householder life. Read-only in DevoteeView below until now, which
+                meant the representative — usually the only person who can
+                source these — had no way to propose a correction. */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profil-name-before" className="label">Name before diksha</label>
+                <input id="profil-name-before" className="input" value={form.name_before_diksha ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, name_before_diksha: e.target.value }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-samadhi-date" className="label">Samadhi date</label>
+                <input id="profil-samadhi-date" className="input" type="date" value={form.samadhi_date ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, samadhi_date: e.target.value || null }))} />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label htmlFor="profil-fathers-name" className="label">Father&rsquo;s name</label>
+                <input id="profil-fathers-name" className="input" value={form.fathers_name ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, fathers_name: e.target.value }))} />
+              </div>
+              <div>
+                <label htmlFor="profil-mothers-name" className="label">Mother&rsquo;s name</label>
+                <input id="profil-mothers-name" className="input" value={form.mothers_name ?? ''}
+                  onChange={(e) => setForm((f) => ({ ...f, mothers_name: e.target.value }))} />
+              </div>
             </div>
             <div className="flex gap-3">
               <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Saving…' : 'Save Changes'}</button>
