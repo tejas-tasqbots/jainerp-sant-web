@@ -90,8 +90,18 @@ export interface MaharajProfile {
   /** Inline photo (data: URI). Takes precedence over photo_url — see doc-v2/Images_And_Photos.md. */
   photo_base64?: string;
   photo_mime?: string;
+  /**
+   * `verified` is PUBLICATION — may a devotee see this profile at all.
+   * Migration 050 set it on 2,997 scraped rows so the directory could go live,
+   * which is exactly why it must never draw the tick.
+   */
   verified: boolean;
   verified_at?: string;
+  /**
+   * `verification_state` is ATTESTATION — has a Super Admin read this record
+   * against a source. This is the one that draws the tick (078 §1).
+   */
+  verification_state?: 'unverified' | 'verified';
   followers_count: number;
   place?: string;
   current_city?: string;

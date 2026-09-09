@@ -263,10 +263,27 @@ export default function ProfileDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-1 flex-wrap">
               <h2 className="text-xl font-bold">{displayName(profile, lang)}</h2>
+              {/* ── THE TICK IS ATTESTATION, NOT PUBLICATION ────────────
+                  This read `profile.verified`, and 078 split that column in
+                  two precisely so the tick would stop meaning what it does
+                  not: `verified` answers "may a devotee SEE this profile",
+                  and migration 050 set it on 2,997 rows scraped from public
+                  directories so the directory could go live. Keying the tick
+                  off it told a representative their record had been checked
+                  when nobody had read a line of it.
+
+                  `verification_state === 'verified'` is the one a Super Admin
+                  sets by pressing "Mark checked". Published-but-unattested is
+                  the common case — 3,377 of the seeded profiles — and it now
+                  shows as listed, not as verified. */}
               {isSamadhistha ? (
                 <span className="bg-white/15 text-white/80 badge text-xs">{t('sant.samadhistha')}</span>
-              ) : profile.verified ? (
+              ) : profile.verification_state === 'verified' ? (
                 <span className="badge-green text-xs">✓ {t('ui.verified', { defaultValue: 'Verified' })}</span>
+              ) : profile.verified ? (
+                <span className="bg-white/15 text-white/80 badge text-xs">
+                  {t('sant.listedNotChecked', { defaultValue: 'Listed — not yet checked' })}
+                </span>
               ) : (
                 <span className="bg-yellow-400/20 text-yellow-200 badge text-xs">{t('ui.pendingVerification')}</span>
               )}

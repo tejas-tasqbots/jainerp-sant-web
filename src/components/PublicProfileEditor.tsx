@@ -5,7 +5,21 @@ import api, { apiError } from '../lib/api';
 import { compressImage } from '../lib/imageCompress';
 import { useToast } from './kit';
 
-interface ProfileLink { id: string; kind: string; label?: string | null; url: string }
+/**
+ * `review_state` is carried on every row for a reason.
+ *
+ * A sant's link or published work is created in `review_state = 'pending'` and
+ * is invisible to devotees until a Super Admin approves it (078 §2b). The
+ * representative's own app is deliberately served the row WITH its state, and
+ * this editor was dropping it — so a book appeared in the list the instant it
+ * was added, looking exactly like one that had been approved. The rep had no
+ * way to tell what devotees could actually see, and no reason to expect a wait.
+ */
+type ReviewState = 'pending' | 'approved' | 'rejected';
+interface ProfileLink {
+  id: string; kind: string; label?: string | null; url: string;
+  review_state?: ReviewState; review_note?: string | null;
+}
 interface Publication {
   id: string;
   title: string;
@@ -15,6 +29,29 @@ interface Publication {
   publisher?: string | null;
   description?: string | null;
   url?: string | null;
+  review_state?: ReviewState;
+  review_note?: string | null;
+}
+
+/**
+ * What devotees can actually see, said on the row itself.
+ *
+ * Nothing is shown for an approved row: that is the resting state, and a badge
+ * on every line would drown the one line that needs reading.
+ */
+function ReviewBadge({ state, note }: { state?: ReviewState; note?: string | null }) {
+  if (!state || state === 'approved') return null;
+  const rejected = state === 'rejected';
+  return (
+    <span
+      title={note ?? undefined}
+      className={`shrink-0 rounded px-1.5 py-0.5 text-[11px] font-medium ${
+        rejected ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'
+      }`}
+    >
+      {rejected ? 'Not approved' : 'Waiting for approval'}
+    </span>
+  );
 }
 
 const LINK_KINDS = [
@@ -147,6 +184,7 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
                 className="min-w-0 flex-1 truncate text-sm text-amber-700 hover:underline">
                 {l.label || l.url}
               </a>
+              <ReviewBadge state={l.review_state} note={l.review_note} />
               <button onClick={() => removeLink(l.id)} aria-label={t('ui.removeLink')}
                 className="p-1 text-slate-400 hover:text-red-600">
                 <Trash2 size={15} />
@@ -185,7 +223,10 @@ export function PublicProfileEditor({ profileId }: { profileId: string }) {
           {pubs.map(p => (
             <div key={p.id} className="flex items-start gap-3 rounded-lg border border-slate-200 px-3 py-2">
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-slate-800">{p.title}</p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-medium text-slate-800">{p.title}</p>
+                  <ReviewBadge state={p.review_state} note={p.review_note} />
+                </div>
                 <p className="mt-0.5 text-xs text-slate-500">
                   {[p.kind, p.language, p.year, p.publisher].filter(Boolean).join(' · ')}
                 </p>

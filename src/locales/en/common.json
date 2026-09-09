@@ -195,7 +195,7 @@
     "notes": "Notes",
     "nothingPublished": "Nothing published yet.",
     "notifiesFollowers": "Setting a new location notifies all followers",
-    "oneAccount": "One account per platform — adding a second replaces the first.",
+    "oneAccount": "One account per platform — adding a second replaces the first. Added items are sent to the JainERP team and appear on the public profile once approved.",
     "pad": "Post held",
     "panthGaccha": "Panth / Gaccha",
     "pendingVerification": "Pending Verification",
@@ -259,7 +259,7 @@
     "viharPlan": "Vihar Plan",
     "visibility": "Visibility",
     "whatDevoteesSee": "What devotees see about you in the JainERP app",
-    "worksHelp": "Books, commentaries, translations and pravachan series.",
+    "worksHelp": "Books, commentaries, translations and pravachan series. Added items are sent to the JainERP team and appear on the public profile once approved.",
     "year": "Year"
   }
 }
