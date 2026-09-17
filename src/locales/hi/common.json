@@ -23,7 +23,15 @@
     "sendOtp": "OTP भेजें",
     "sendingOtp": "OTP भेजा जा रहा है…",
     "verify": "वेरिफाई करके साइन इन करें",
-    "verifying": "वेरिफाई हो रहा है…"
+    "verifying": "वेरिफाई हो रहा है…",
+    "noCode": "कोड नहीं मिला?",
+    "resend": "OTP दोबारा भेजें",
+    "resendIn": "{{seconds}} सेकंड में दोबारा भेजें",
+    "resending": "भेजा जा रहा है...",
+    "otpResent": "नया OTP भेज दिया गया है।",
+    "otpResentVia": "{{channel}} के माध्यम से नया OTP भेज दिया गया है।",
+    "resendFailed": "OTP दोबारा नहीं भेजा जा सका। कृपया फिर से प्रयास करें।",
+    "otpSentTo": "OTP भेजा गया"
   },
   "nav": {
     "account": "खाता",

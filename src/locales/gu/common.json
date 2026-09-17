@@ -23,7 +23,15 @@
     "sendOtp": "OTP મોકલો",
     "sendingOtp": "OTP મોકલી રહ્યા છીએ…",
     "verify": "ચકાસો અને સાઇન ઇન કરો",
-    "verifying": "ચકાસી રહ્યા છીએ…"
+    "verifying": "ચકાસી રહ્યા છીએ…",
+    "noCode": "કોડ મળ્યો નથી?",
+    "resend": "OTP ફરી મોકલો",
+    "resendIn": "{{seconds}} સેકન્ડમાં ફરી મોકલો",
+    "resending": "મોકલી રહ્યા છીએ...",
+    "otpResent": "નવો OTP મોકલવામાં આવ્યો છે.",
+    "otpResentVia": "{{channel}} દ્વારા નવો OTP મોકલવામાં આવ્યો છે.",
+    "resendFailed": "OTP ફરી મોકલી શકાયો નથી. કૃપા કરીને ફરી પ્રયાસ કરો.",
+    "otpSentTo": "OTP મોકલ્યો"
   },
   "nav": {
     "account": "ખાતું",

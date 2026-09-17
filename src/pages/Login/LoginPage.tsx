@@ -1,7 +1,7 @@
 import { useTranslation } from 'react-i18next'
-import { Users } from 'lucide-react'
+import { RotateCw, Users } from 'lucide-react'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api, { apiError } from '../../lib/api';
 import { isValidPhone, PhoneInput } from '../../components/PhoneInput';
@@ -17,8 +17,46 @@ export default function LoginPage() {
   const [devOtp, setDevOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // "Resend OTP", gated by a countdown so a slow SMS/WhatsApp doesn't turn into
+  // five requests — the API also caps sends at 5 an hour per number.
+  const [resendIn, setResendIn] = useState(0);
+  const [resending, setResending] = useState(false);
+  const [resentNote, setResentNote] = useState('');
   const setAuth = useAuthStore((s) => s.setAuth);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (resendIn <= 0) return;
+    const timer = setTimeout(() => setResendIn((n) => n - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendIn]);
+
+  /** "whatsapp" → "WhatsApp"; the mock and review channels name nothing a user would recognise. */
+  function channelName(channel?: string): string | null {
+    if (channel === 'whatsapp') return 'WhatsApp';
+    if (channel === 'sms') return 'SMS';
+    return null;
+  }
+
+  async function resendOtp() {
+    if (resendIn > 0 || resending) return;
+    setResending(true);
+    setError('');
+    setResentNote('');
+    try {
+      // A new send replaces the previous code, so the old one stops working.
+      const res = await api.post('/auth/send-otp', { mobile }) as any;
+      if (res?.dev_otp) setDevOtp(res.dev_otp);
+      const via = channelName(res?.channel);
+      setResentNote(via ? t('login.otpResentVia', { channel: via }) : t('login.otpResent'));
+      setOtp('');
+      setResendIn(30);
+    } catch (e) {
+      setError(apiError(e) || t('login.resendFailed'));
+    } finally {
+      setResending(false);
+    }
+  }
 
   async function sendOtp(e: React.FormEvent) {
     e.preventDefault();
@@ -29,6 +67,7 @@ export default function LoginPage() {
       const res = await api.post('/auth/send-otp', { mobile }) as any;
       if (res?.dev_otp) setDevOtp(res.dev_otp);
       setStep('otp');
+      setResendIn(30);
     } catch (e) {
       setError(apiError(e));
     } finally {
@@ -117,7 +156,7 @@ export default function LoginPage() {
                   required
                   autoFocus
                 />
-                <p className="text-xs text-gray-500 mt-1">OTP sent to {mobile}</p>
+                <p className="text-xs text-gray-500 mt-1">{t('login.otpSentTo')} {mobile}</p>
                 {devOtp && (
                   <p className="text-xs text-cta mt-1 font-mono">Dev OTP: {devOtp}</p>
                 )}
@@ -126,9 +165,28 @@ export default function LoginPage() {
               <button type="submit" disabled={loading} className="btn-primary w-full py-2.5">
                 {loading ? t('login.verifying') : t('login.verify')}
               </button>
+              {resentNote && (
+                <p role="status" className="text-xs text-green-700 bg-green-50 border border-green-200 rounded-md px-3 py-2">{resentNote}</p>
+              )}
+              <div className="text-center text-sm" data-testid="resend-otp">
+                <span className="text-gray-500">{t('login.noCode')} </span>
+                {resendIn > 0 ? (
+                  <span className="text-gray-500">{t('login.resendIn', { seconds: resendIn })}</span>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={resendOtp}
+                    disabled={resending}
+                    className="inline-flex items-center gap-1 font-semibold text-brand-red hover:underline disabled:opacity-50"
+                  >
+                    <RotateCw size={13} className={resending ? 'animate-spin' : ''} />
+                    {resending ? t('login.resending') : t('login.resend')}
+                  </button>
+                )}
+              </div>
               <button
                 type="button"
-                onClick={() => { setStep('mobile'); setOtp(''); setError(''); }}
+                onClick={() => { setStep('mobile'); setOtp(''); setError(''); setResentNote(''); }}
                 className="btn-outline w-full"
               >{t('ui.changeNumber')}</button>
             </form>
