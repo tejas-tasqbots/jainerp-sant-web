@@ -137,7 +137,10 @@ export function DevoteeView({ profile }: { profile: MaharajProfile }) {
       )}
 
       {(sourceUrl || sourceCredit || sourceRefs) && (
-        <p className="mt-3 border-t border-slate-100 pt-2 text-[11px] text-slate-400">
+        // break-words + overflow-wrap:anywhere: the source references are bare
+        // URLs with no break opportunity, and one pushed the whole page 129 px
+        // sideways on a 390 px phone.
+        <p className="mt-3 border-t border-slate-100 pt-2 text-[11px] text-slate-400 break-words [overflow-wrap:anywhere]">
           {sourceCredit}
           {sourceRefs && <span> · {sourceRefs}</span>}
           {sourceUrl && (
