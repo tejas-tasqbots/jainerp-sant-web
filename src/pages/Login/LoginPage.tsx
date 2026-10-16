@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next'
-import { RotateCw, Users } from 'lucide-react'
+import { RotateCw } from 'lucide-react'
 import { LanguageSwitcher } from '../../components/LanguageSwitcher'
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -112,12 +112,7 @@ export default function LoginPage() {
           <div className="flex justify-end -mt-2 mb-1 relative z-50"><LanguageSwitcher /></div>
           {/* Header — identical treatment to the Mandir Admin login. */}
           <div className="text-center mb-8">
-            <div className="w-16 h-16 rounded-2xl bg-brand-red flex items-center justify-center mx-auto mb-4">
-              <Users size={32} className="text-white" />
-            </div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              <span className="text-navy-900">Jain</span><span className="text-brand-red">ERP</span>
-            </h1>
+            <h1 className="m-0"><img src="/logo.svg" alt="JainERP" className="h-12 w-auto mx-auto" /></h1>
             <p className="text-slate-500 text-sm font-semibold mt-1">{t('brand.portal')}</p>
           </div>
           {step === 'mobile' ? (

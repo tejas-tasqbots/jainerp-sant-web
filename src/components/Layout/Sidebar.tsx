@@ -56,9 +56,7 @@ export default function Sidebar({ open = false }: { open?: boolean }) {
     >
       {/* Logo */}
       <div className="px-4 py-5 border-b border-slate-200">
-        <p className="text-xl font-bold tracking-tight leading-none">
-          <span className="text-navy-900">Jain</span><span className="text-brand-red">ERP</span>
-        </p>
+        <img src="/logo.svg" alt="JainERP" className="h-9 w-auto" />
         <p className="text-xs font-semibold text-slate-500 mt-1">{t('brand.portal')}</p>
       </div>
 
